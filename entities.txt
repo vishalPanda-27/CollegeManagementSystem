@@ -1,0 +1,2281 @@
+package com.vishal.cms.attendance;
+
+
+
+import com.vishal.cms.audit.BaseEntity;
+
+import com.vishal.cms.student.Student;
+
+import com.vishal.cms.subject.Subject;
+
+import com.vishal.cms.teacher.Teacher;
+
+import jakarta.persistence.*;
+
+import lombok.Getter;
+
+import lombok.NoArgsConstructor;
+
+import lombok.Setter;
+
+
+
+import java.time.LocalDate;
+
+
+
+@Entity
+
+@Table(
+
+        name = "attendance",
+
+        uniqueConstraints = {
+
+                @UniqueConstraint(
+
+                        name = "student_subject_date_unique",
+
+                        columnNames = {
+
+                                "student_id",
+
+                                "subject_id",
+
+                                "attendance_date"
+
+                        }
+
+                )
+
+        }
+
+)
+
+@Getter
+
+@Setter
+
+@NoArgsConstructor
+
+public class Attendance extends BaseEntity {
+
+
+
+    @Id
+
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    private Long attendanceId;
+
+
+
+    @ManyToOne
+
+    @JoinColumn(
+
+            name = "student_id",
+
+            nullable = false
+
+    )
+
+    private Student student;
+
+
+
+    @ManyToOne
+
+    @JoinColumn(
+
+            name = "subject_id",
+
+            nullable = false
+
+    )
+
+    private Subject subject;
+
+
+
+    @ManyToOne
+
+    @JoinColumn(name = "marked_by")
+
+    private Teacher markedBy;
+
+
+
+    @Column(
+
+            name = "attendance_date",
+
+            nullable = false
+
+    )
+
+    private LocalDate attendanceDate;
+
+
+
+    @Enumerated(EnumType.STRING)
+
+    @Column(nullable = false)
+
+    private AttendanceStatus status;
+
+}
+
+package com.vishal.cms.classroom;
+
+
+
+import com.vishal.cms.audit.BaseEntity;
+
+import com.vishal.cms.classschedule.ClassSchedule;
+
+import com.vishal.cms.department.Department;
+
+import com.vishal.cms.timetable.Timetable;
+
+import jakarta.persistence.*;
+
+import jakarta.validation.constraints.Min;
+
+import jakarta.validation.constraints.NotBlank;
+
+import jakarta.validation.constraints.NotNull;
+
+import lombok.AllArgsConstructor;
+
+import lombok.Getter;
+
+import lombok.NoArgsConstructor;
+
+import lombok.Setter;
+
+
+
+import java.util.List;
+
+
+
+@Entity
+
+@Table(
+
+        name = "classrooms",
+
+        uniqueConstraints = {
+
+                @UniqueConstraint(
+
+                        name = "uk_room_number",
+
+                        columnNames = "room_number"
+
+                )
+
+        }
+
+)
+
+@Getter
+
+@Setter
+
+@NoArgsConstructor
+
+@AllArgsConstructor
+
+public class Classroom extends BaseEntity {
+
+
+
+    @Id
+
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    private Long id;
+
+
+
+    @NotBlank
+
+    @Column(
+
+            name = "room_number",
+
+            nullable = false
+
+    )
+
+    private String roomNumber;
+
+
+
+    @NotBlank
+
+    @Column(nullable = false)
+
+    private String buildingName;
+
+
+
+    private Integer floor;
+
+
+
+    @Min(30)
+
+    @Column(nullable = false)
+
+    private Integer capacity;
+
+
+
+    @NotNull
+
+    @Enumerated(EnumType.STRING)
+
+    private RoomType roomType;
+
+
+
+    @NotNull
+
+    @Enumerated(EnumType.STRING)
+
+    private RoomStatus status;
+
+
+
+    @ManyToOne
+
+    @JoinColumn(
+
+            name = "department_id",
+
+            foreignKey = @ForeignKey(
+
+                    name = "fk_classroom_department"
+
+            )
+
+    )
+
+    private Department department;
+
+
+
+    @OneToMany(mappedBy = "classroom")
+
+    private List<Timetable> timetables;
+
+
+
+    @OneToMany(mappedBy = "classroom")
+
+    private List<ClassSchedule> schedules;
+
+}
+
+package com.vishal.cms.classschedule;
+
+
+
+import com.vishal.cms.audit.BaseEntity;
+
+import com.vishal.cms.classroom.Classroom;
+
+import com.vishal.cms.subject.Subject;
+
+import com.vishal.cms.teacher.Teacher;
+
+import jakarta.persistence.*;
+
+import lombok.*;
+
+
+
+import java.time.DayOfWeek;
+
+import java.time.LocalTime;
+
+
+
+@Entity
+
+@Table(name = "class_schedules")
+
+@Getter
+
+@Setter
+
+@NoArgsConstructor
+
+@AllArgsConstructor
+
+@Builder
+
+public class ClassSchedule extends BaseEntity {
+
+
+
+    @Id
+
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    private Long scheduleId;
+
+
+
+    @ManyToOne
+
+    @JoinColumn(name = "teacher_id", nullable = false)
+
+    private Teacher teacher;
+
+
+
+    @ManyToOne
+
+    @JoinColumn(name = "subject_id", nullable = false)
+
+    private Subject subject;
+
+
+
+    @ManyToOne
+
+    @JoinColumn(name = "classroom_id", nullable = false)
+
+    private Classroom classroom;
+
+
+
+    @Enumerated(EnumType.STRING)
+
+    @Column(nullable = false)
+
+    private DayOfWeek dayOfWeek;
+
+
+
+    @Column(nullable = false)
+
+    private LocalTime startTime;
+
+
+
+    @Column(nullable = false)
+
+    private LocalTime endTime;
+
+
+
+    @Column(length = 20)
+
+    private String semester;
+
+
+
+    @Column(length = 20)
+
+    private String academicYear;
+
+}
+
+package com.vishal.cms.course;
+
+
+
+import com.vishal.cms.audit.BaseEntity;
+
+import com.vishal.cms.enrollment.Enrollment;
+
+import com.vishal.cms.timetable.Timetable;
+
+import jakarta.persistence.Entity;
+
+
+
+import com.vishal.cms.department.Department;
+
+import com.vishal.cms.teacher.Teacher;
+
+import jakarta.persistence.*;
+
+import jakarta.validation.constraints.NotBlank;
+
+import lombok.AllArgsConstructor;
+
+import lombok.Getter;
+
+import lombok.NoArgsConstructor;
+
+import lombok.Setter;
+
+
+
+import java.util.HashSet;
+
+import java.util.List;
+
+import java.util.Set;
+
+
+
+@Entity
+
+@Table(name = "course",
+
+        uniqueConstraints = {
+
+                @UniqueConstraint(
+
+                        name = "course_code_unique",
+
+                        columnNames = "course_code"
+
+                )
+
+        })
+
+@Setter
+
+@Getter
+
+@AllArgsConstructor
+
+@NoArgsConstructor
+
+public class Course extends BaseEntity {
+
+
+
+    @Id
+
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    private Long id;
+
+
+
+    @Column(nullable = false, unique = true)
+
+    @NotBlank
+
+    private String courseCode;
+
+
+
+    @Column(nullable = false)
+
+    @NotBlank
+
+    private String courseName;
+
+
+
+    private Integer credits;
+
+
+
+    private Integer semester;
+
+
+
+    private String description;
+
+
+
+    @ManyToOne
+
+    @JoinColumn(name = "department_id")
+
+    private Department department;
+
+
+
+    @ManyToMany
+
+    @JoinTable(
+
+            name = "teacher_course",
+
+            joinColumns = @JoinColumn(name = "course_id"),
+
+            inverseJoinColumns = @JoinColumn(name = "teacher_id")
+
+    )
+
+    private Set<Teacher> teachers = new HashSet<>();
+
+
+
+    @OneToMany(
+
+            mappedBy = "course",
+
+            cascade = CascadeType.ALL
+
+    )
+
+    private List<Enrollment> enrollments;
+
+
+
+    @OneToMany(mappedBy = "course")
+
+    private List<Timetable> timetables;
+
+
+
+}
+
+package com.vishal.cms.department;
+
+
+
+import com.vishal.cms.audit.BaseEntity;
+
+import com.vishal.cms.classroom.Classroom;
+
+import com.vishal.cms.course.Course;
+
+import com.vishal.cms.program.Program;
+
+import com.vishal.cms.student.Student;
+
+import com.vishal.cms.teacher.Teacher;
+
+
+
+import jakarta.persistence.*;
+
+import lombok.AllArgsConstructor;
+
+import lombok.Getter;
+
+import lombok.NoArgsConstructor;
+
+import lombok.Setter;
+
+
+
+import java.util.ArrayList;
+
+import java.util.List;
+
+
+
+@Entity
+
+@Table(name = "department")
+
+@Setter
+
+@Getter
+
+@NoArgsConstructor
+
+@AllArgsConstructor
+
+public class Department extends BaseEntity {
+
+
+
+    @Id
+
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    private Long id;
+
+
+
+    @Column(nullable = false, unique = true)
+
+    private String code;
+
+
+
+    @Column(nullable = false)
+
+    private String name;
+
+
+
+    private String description;
+
+
+
+    private String email;
+
+
+
+    private String phoneNumber;
+
+
+
+
+
+    @OneToMany(mappedBy = "department")
+
+    private List<Student> students = new ArrayList<>();
+
+
+
+    @OneToMany(mappedBy = "department")
+
+    private List<Teacher> teachers = new ArrayList<>();
+
+
+
+    @OneToMany(mappedBy = "department")
+
+    private List<Course> courses = new ArrayList<>();
+
+
+
+    @OneToMany(mappedBy = "department")
+
+    private List<Classroom> classrooms = new ArrayList<>();
+
+
+
+    @OneToMany(
+
+            mappedBy = "department",
+
+            cascade = CascadeType.ALL,
+
+            orphanRemoval = true
+
+    )
+
+    private List<Program> programs;
+
+
+
+    @OneToOne
+
+    @JoinColumn(name = "hod_id")
+
+    private Teacher hod;
+
+}
+
+package com.vishal.cms.enrollment;
+
+
+
+import com.vishal.cms.audit.BaseEntity;
+
+import com.vishal.cms.course.Course;
+
+import com.vishal.cms.student.Student;
+
+import jakarta.persistence.*;
+
+import lombok.Getter;
+
+import lombok.NoArgsConstructor;
+
+import lombok.Setter;
+
+
+
+import java.time.LocalDate;
+
+
+
+@Entity
+
+@Table(
+
+        name = "enrollment",
+
+        uniqueConstraints = {
+
+                @UniqueConstraint(
+
+                        name = "student_course_unique",
+
+                        columnNames = {
+
+                                "student_id",
+
+                                "course_id"
+
+                        }
+
+                )
+
+        }
+
+)
+
+@Getter
+
+@Setter
+
+@NoArgsConstructor
+
+public class Enrollment extends BaseEntity {
+
+
+
+    @Id
+
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    private Long enrollmentId;
+
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+
+    @JoinColumn(
+
+            name = "student_id",
+
+            nullable = false
+
+    )
+
+    private Student student;
+
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+
+    @JoinColumn(
+
+            name = "course_id",
+
+            nullable = false
+
+    )
+
+    private Course course;
+
+
+
+    private LocalDate enrollmentDate;
+
+
+
+    private String semester;
+
+
+
+    private String academicYear;
+
+
+
+    @Enumerated(EnumType.STRING)
+
+    private EnrollmentStatus status;
+
+
+
+    private Double grade;
+
+}
+
+package com.vishal.cms.program;
+
+
+
+import com.vishal.cms.audit.BaseEntity;
+
+import com.vishal.cms.department.Department;
+
+import jakarta.persistence.*;
+
+import jakarta.validation.constraints.NotBlank;
+
+import lombok.*;
+
+
+
+@Entity
+
+@Table(
+
+        name = "program",
+
+        uniqueConstraints = {
+
+                @UniqueConstraint(
+
+                        name = "uk_program_code",
+
+                        columnNames = "program_code"
+
+                )
+
+        }
+
+)
+
+@Getter
+
+@Setter
+
+@NoArgsConstructor
+
+@AllArgsConstructor
+
+@Builder
+
+public class Program extends BaseEntity {
+
+
+
+    @Id
+
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    private Long programId;
+
+
+
+    @NotBlank
+
+    @Column(name = "program_name", nullable = false)
+
+    private String programName;
+
+
+
+    @NotBlank
+
+    @Column(name = "program_code", nullable = false, unique = true)
+
+    private String programCode;
+
+
+
+    @Column(name = "duration_years")
+
+    private Integer durationYears;
+
+
+
+    @Column(name = "description")
+
+    private String description;
+
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+
+    @JoinColumn(
+
+            name = "department_id",
+
+            nullable = false,
+
+            foreignKey = @ForeignKey(name = "fk_program_department")
+
+    )
+
+    private Department department;
+
+}
+
+package com.vishal.cms.result;
+
+
+
+import com.vishal.cms.audit.BaseEntity;
+
+import com.vishal.cms.student.Student;
+
+import com.vishal.cms.subject.Subject;
+
+import jakarta.persistence.*;
+
+import lombok.*;
+
+
+
+@Entity
+
+@Table(
+
+        name = "result",
+
+        uniqueConstraints = {
+
+                @UniqueConstraint(
+
+                        name = "student_subject_result_unique",
+
+                        columnNames = {"student_id", "subject_id"}
+
+                )
+
+        }
+
+)
+
+@Getter
+
+@Setter
+
+@NoArgsConstructor
+
+@AllArgsConstructor
+
+@Builder
+
+public class Result extends BaseEntity {
+
+
+
+    @Id
+
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    private Long resultId;
+
+
+
+    @ManyToOne
+
+    @JoinColumn(
+
+            name = "student_id",
+
+            nullable = false,
+
+            foreignKey = @ForeignKey(name = "fk_result_student")
+
+    )
+
+    private Student student;
+
+
+
+    @ManyToOne
+
+    @JoinColumn(
+
+            name = "subject_id",
+
+            nullable = false,
+
+            foreignKey = @ForeignKey(name = "fk_result_subject")
+
+    )
+
+    private Subject subject;
+
+
+
+    @Column(nullable = false)
+
+    private Double marksObtained;
+
+
+
+    @Column(nullable = false)
+
+    private Double maximumMarks;
+
+
+
+    private Double percentage;
+
+
+
+    private String grade;
+
+
+
+    private String status; // PASS / FAIL
+
+}
+
+package com.vishal.cms.student;
+
+
+
+import com.vishal.cms.attendance.Attendance;
+
+import com.vishal.cms.audit.BaseEntity;
+
+import com.vishal.cms.department.Department;
+
+import com.vishal.cms.enrollment.Enrollment;
+
+import com.vishal.cms.result.Result;
+
+import com.vishal.cms.user.User;
+
+import jakarta.persistence.*;
+
+import jakarta.validation.constraints.Email;
+
+import jakarta.validation.constraints.NotBlank;
+
+import lombok.AllArgsConstructor;
+
+import lombok.Getter;
+
+import lombok.NoArgsConstructor;
+
+import lombok.Setter;
+
+
+
+import java.time.LocalDate;
+
+import java.util.List;
+
+
+
+@Entity
+
+@Table(name = "student",
+
+        uniqueConstraints = {
+
+                @UniqueConstraint(
+
+                        name = "student_email_unique",
+
+                        columnNames = "email"
+
+                ),
+
+                @UniqueConstraint(
+
+                        name = "student_roll_unique",
+
+                        columnNames = "roll_number"
+
+                )
+
+        })
+
+@Getter
+
+@Setter
+
+@NoArgsConstructor
+
+@AllArgsConstructor
+
+public class Student extends BaseEntity {
+
+
+
+    @Id
+
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    private Long id;
+
+
+
+    @NotBlank
+
+    @Column(name = "roll_number", nullable = false, unique = true)
+
+    private String rollNumber;
+
+
+
+    @NotBlank
+
+    private String firstName;
+
+
+
+    @NotBlank
+
+    private String lastName;
+
+
+
+    @Email
+
+    @Column(name = "email", unique = true)
+
+    private String email;
+
+
+
+    private String phoneNumber;
+
+
+
+    private LocalDate dateOfBirth;
+
+
+
+    private String gender;
+
+
+
+    private String address;
+
+
+
+    private LocalDate admissionDate;
+
+
+
+    @Enumerated(EnumType.STRING)
+
+    private StudentStatus status;
+
+
+
+    @ManyToOne
+
+    @JoinColumn(
+
+            name = "department_id",
+
+            foreignKey = @ForeignKey(
+
+                    name = "student_department_fk"
+
+            )
+
+    )
+
+    private Department department;
+
+
+
+    @OneToMany(
+
+            mappedBy = "student",
+
+            cascade = CascadeType.ALL
+
+    )
+
+    private List<Enrollment> enrollments;
+
+
+
+    @OneToMany(mappedBy = "student")
+
+    private List<Attendance> attendanceRecords;
+
+
+
+    @OneToMany(mappedBy = "student")
+
+    private List<Result> results;
+
+
+
+    @OneToOne
+
+    @JoinColumn(name = "user_id")
+
+    private User user;
+
+}
+
+package com.vishal.cms.student;
+
+
+
+import com.vishal.cms.attendance.Attendance;
+
+import com.vishal.cms.audit.BaseEntity;
+
+import com.vishal.cms.department.Department;
+
+import com.vishal.cms.enrollment.Enrollment;
+
+import com.vishal.cms.result.Result;
+
+import com.vishal.cms.user.User;
+
+import jakarta.persistence.*;
+
+import jakarta.validation.constraints.Email;
+
+import jakarta.validation.constraints.NotBlank;
+
+import lombok.AllArgsConstructor;
+
+import lombok.Getter;
+
+import lombok.NoArgsConstructor;
+
+import lombok.Setter;
+
+
+
+import java.time.LocalDate;
+
+import java.util.List;
+
+
+
+@Entity
+
+@Table(name = "student",
+
+        uniqueConstraints = {
+
+                @UniqueConstraint(
+
+                        name = "student_email_unique",
+
+                        columnNames = "email"
+
+                ),
+
+                @UniqueConstraint(
+
+                        name = "student_roll_unique",
+
+                        columnNames = "roll_number"
+
+                )
+
+        })
+
+@Getter
+
+@Setter
+
+@NoArgsConstructor
+
+@AllArgsConstructor
+
+public class Student extends BaseEntity {
+
+
+
+    @Id
+
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    private Long id;
+
+
+
+    @NotBlank
+
+    @Column(name = "roll_number", nullable = false, unique = true)
+
+    private String rollNumber;
+
+
+
+    @NotBlank
+
+    private String firstName;
+
+
+
+    @NotBlank
+
+    private String lastName;
+
+
+
+    @Email
+
+    @Column(name = "email", unique = true)
+
+    private String email;
+
+
+
+    private String phoneNumber;
+
+
+
+    private LocalDate dateOfBirth;
+
+
+
+    private String gender;
+
+
+
+    private String address;
+
+
+
+    private LocalDate admissionDate;
+
+
+
+    @Enumerated(EnumType.STRING)
+
+    private StudentStatus status;
+
+
+
+    @ManyToOne
+
+    @JoinColumn(
+
+            name = "department_id",
+
+            foreignKey = @ForeignKey(
+
+                    name = "student_department_fk"
+
+            )
+
+    )
+
+    private Department department;
+
+
+
+    @OneToMany(
+
+            mappedBy = "student",
+
+            cascade = CascadeType.ALL
+
+    )
+
+    private List<Enrollment> enrollments;
+
+
+
+    @OneToMany(mappedBy = "student")
+
+    private List<Attendance> attendanceRecords;
+
+
+
+    @OneToMany(mappedBy = "student")
+
+    private List<Result> results;
+
+
+
+    @OneToOne
+
+    @JoinColumn(name = "user_id")
+
+    private User user;
+
+}
+
+package com.vishal.cms.teacher;
+
+import com.vishal.cms.attendance.Attendance;
+import com.vishal.cms.audit.BaseEntity;
+import com.vishal.cms.classschedule.ClassSchedule;
+import com.vishal.cms.course.Course;
+import com.vishal.cms.department.Department;
+import com.vishal.cms.subject.Subject;
+import com.vishal.cms.timetable.Timetable;
+import com.vishal.cms.user.User;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+
+@Entity
+@Table(name = "teacher")
+@Getter
+@Setter
+public class Teacher extends BaseEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long teacherId;
+
+    @NotBlank
+    private String firstName;
+
+    @NotBlank
+    private String lastName;
+
+    @Email
+    @Column(unique = true)
+    private String email;
+
+    @NotBlank
+    private String phone;
+
+    private String qualification;
+
+    private String specialization;
+
+    private LocalDate joiningDate;
+
+    private Double salary;
+
+    private boolean active;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "department_id")
+    private Department department;
+
+    @ManyToMany(mappedBy = "teachers")
+    private Set<Course> courses = new HashSet<>();
+
+    @OneToMany(mappedBy = "markedBy")
+    private List<Attendance> attendanceRecords;
+
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+      @ManyToMany
+      @JoinTable(
+              name = "teacher_subject",
+              joinColumns = @JoinColumn(name = "teacher_id"),
+              inverseJoinColumns = @JoinColumn(name = "subject_id")
+      )
+      private Set<Subject> subjects = new HashSet<>();
+
+    @OneToMany(mappedBy = "teacher")
+    private List<Timetable> timetables;
+
+    @OneToMany(mappedBy = "teacher")
+    private List<ClassSchedule> schedules;
+
+}
+package com.vishal.cms.timetable;
+
+import com.vishal.cms.audit.BaseEntity;
+import com.vishal.cms.classroom.Classroom;
+import com.vishal.cms.course.Course;
+import com.vishal.cms.subject.Subject;
+import com.vishal.cms.teacher.Teacher;
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.DayOfWeek;
+import java.time.LocalTime;
+
+@Entity
+@Table(
+        name = "timetable",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_classroom_day_time",
+                        columnNames = {
+                                "classroom_id",
+                                "day_of_week",
+                                "start_time"
+                        }
+                )
+        }
+)
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class Timetable extends BaseEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long timetableId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private DayOfWeek dayOfWeek;
+
+    @Column(nullable = false)
+    private LocalTime startTime;
+
+    @Column(nullable = false)
+    private LocalTime endTime;
+
+    @ManyToOne
+    @JoinColumn(
+            name = "classroom_id",
+            nullable = false,
+            foreignKey = @ForeignKey(name = "fk_timetable_classroom")
+    )
+    private Classroom classroom;
+
+    @ManyToOne
+    @JoinColumn(
+            name = "course_id",
+            nullable = false,
+            foreignKey = @ForeignKey(name = "fk_timetable_course")
+    )
+    private Course course;
+
+    @ManyToOne
+    @JoinColumn(
+            name = "subject_id",
+            nullable = false,
+            foreignKey = @ForeignKey(name = "fk_timetable_subject")
+    )
+    private Subject subject;
+
+    @ManyToOne
+    @JoinColumn(
+            name = "teacher_id",
+            nullable = false,
+            foreignKey = @ForeignKey(name = "fk_timetable_teacher")
+    )
+    private Teacher teacher;
+}
+package com.vishal.cms.user;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import lombok.*;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(
+        name = "user",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_user_email",
+                        columnNames = "email"
+                ),
+                @UniqueConstraint(
+                        name = "uk_user_username",
+                        columnNames = "username"
+                )
+        }
+)
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class User {
+
+    @Id
+    @SequenceGenerator(
+            name = "user_sequence",
+            sequenceName = "user_sequence",
+            allocationSize = 1
+    )
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "user_sequence"
+    )
+    private Long id;
+
+    @NotBlank
+    @Column(nullable = false)
+    private String username;
+
+    @Email
+    @NotBlank
+    @Column(nullable = false)
+    private String email;
+
+    @NotBlank
+    @Column(nullable = false)
+    private String password;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role;
+
+    @Column(nullable = false)
+    private boolean enabled = true;
+
+    @Column(nullable = false)
+    private boolean accountLocked = false;
+
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    public void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+}
+package com.vishal.cms.audit;
+
+import jakarta.persistence.MappedSuperclass;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
+
+@MappedSuperclass
+@Getter
+@Setter
+public abstract class BaseEntity {
+
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
+}
+package com.vishal.cms.attendance;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/v1/attendance")
+@RequiredArgsConstructor
+public class AttendanceController {
+
+    private final AttendanceService attendanceService;
+
+    @PostMapping
+    public Attendance createAttendance(
+            @RequestBody Attendance attendance
+    ) {
+        return attendanceService.createAttendance(attendance);
+    }
+
+    @GetMapping
+    public List<Attendance> getAllAttendance() {
+        return attendanceService.getAllAttendance();
+    }
+
+    @GetMapping("/{id}")
+    public Attendance getAttendanceById(
+            @PathVariable Long id
+    ) {
+        return attendanceService.getAttendanceById(id);
+    }
+
+    @PutMapping("/{id}")
+    public Attendance updateAttendance(
+            @PathVariable Long id,
+            @RequestBody Attendance attendance
+    ) {
+        return attendanceService.updateAttendance(id, attendance);
+    }
+
+    @DeleteMapping("/{id}")
+    public String deleteAttendance(
+            @PathVariable Long id
+    ) {
+        attendanceService.deleteAttendance(id);
+        return "Attendance record deleted successfully";
+    }
+}
+package com.vishal.cms.classroom;
+
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.vishal.cms.department.Department;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/v1/classrooms")
+public class ClassroomController {
+
+    private final ClassroomService classroomService;
+
+
+    public ClassroomController(ClassroomService classroomService) {
+        this.classroomService = classroomService;
+    }
+
+    @PostMapping
+    public Classroom createClassroom(
+            @Valid @RequestBody Classroom classroom
+    ) {
+        return classroomService.createClassroom(classroom);
+    }
+
+    @GetMapping("/{id}")
+    public Classroom getClassroomById(
+            @PathVariable Long id
+    ) {
+        return classroomService.getClassroomById(id);
+    }
+
+    @GetMapping
+    public List<Classroom> getAllClassrooms() {
+        return classroomService.getAllClassrooms();
+    }
+
+    @PutMapping("/{id}")
+    public Classroom updateClassroom(
+            @PathVariable Long id,
+            @Valid
+            @RequestBody Classroom classroom
+    ) {
+        return classroomService.updateClassroom(id, classroom);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteClassroom(
+            @PathVariable Long id
+    ) {
+        classroomService.deleteClassroom(id);
+    }
+
+    @GetMapping("/available")
+    public List<Classroom> getAvailableClassrooms() {
+        return classroomService.getAvailableClassrooms();
+    }
+
+    @GetMapping("/building/{buildingName}")
+    public List<Classroom> getClassroomsByBuilding(
+            @PathVariable String buildingName
+    ) {
+        return classroomService.getClassroomsByBuilding(buildingName);
+    }
+
+    @GetMapping("/departments/{departmentId}/classrooms")
+    public List<Classroom> getClassroomsByDepartment(
+            @PathVariable Long departmentId
+    ) {
+        return classroomService.getClassroomsByDepartment(departmentId);
+    }
+
+    @PatchMapping("/{id}/status")
+    public Classroom changeStatus(
+            @PathVariable Long id,
+            @RequestParam RoomStatus status
+    ) {
+        return classroomService.changeStatus(id, status);
+    }
+}
+package com.vishal.cms.course;
+
+import com.vishal.cms.department.Department;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/v1/courses")
+public class CourseController {
+
+    private final CourseService courseService;
+
+    @GetMapping
+    public List<Course> getAllCourses(){
+        return courseService.findByAllCourses();
+    }
+
+    @GetMapping("/{id}")
+    public Course getCourseById(@PathVariable Long id){
+        return courseService.findByCourseId(id);
+    }
+
+    @PostMapping
+    public Course addCourse(@Valid @RequestBody Course course) {
+        return courseService.saveCourse(course);
+    }
+
+    @PutMapping("/{id}")
+    public Course updateCourse(
+            @PathVariable Long id,
+            @RequestBody Course course
+    ) {
+        return courseService.updateCourse(id, course);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteCourseById(@PathVariable Long id) {
+        courseService.deleteCourse(id);
+    }
+
+}
+package com.vishal.cms.department;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/v1/departments")
+@RequiredArgsConstructor
+public class DepartmentController {
+
+    private final DepartmentService departmentService;
+
+    @GetMapping
+    public List<Department> getAllDepartments() {
+        return departmentService.getAllDepartments();
+    }
+
+    @GetMapping("/{id}")
+    public Department getDepartmentById(@PathVariable Long id) {
+        return departmentService.getDepartment(id);
+    }
+
+    @PostMapping
+    public Department addDepartment(@RequestBody Department department) {
+        return departmentService.saveDepartment(department);
+    }
+
+    @PutMapping("/{id}")
+    public Department updateDepartment(
+            @PathVariable Long id,
+            @RequestBody Department department) {
+
+        return departmentService.updateDepartment(id, department);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteDepartmentById(@PathVariable Long id) {
+        departmentService.deleteDepartment(id);
+    }
+
+}
+package com.vishal.cms.enrollment;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/v1/enrollments")
+@RequiredArgsConstructor
+public class EnrollmentController {
+
+    private final EnrollmentService enrollmentService;
+
+    @PostMapping
+    public Enrollment createEnrollment(
+            @RequestParam Long studentId,
+            @RequestParam Long courseId,
+            @RequestBody Enrollment enrollment
+    ) {
+
+        return enrollmentService.createEnrollment(
+                studentId,
+                courseId,
+                enrollment
+        );
+    }
+
+    @GetMapping
+    public List<Enrollment> getAllEnrollments() {
+        return enrollmentService.getAllEnrollments();
+    }
+
+    @GetMapping("/{enrollmentId}")
+    public Enrollment getEnrollmentById(
+            @PathVariable Long enrollmentId
+    ) {
+
+        return enrollmentService.getEnrollmentById(
+                enrollmentId
+        );
+    }
+
+    @GetMapping("/student/{studentId}")
+    public List<Enrollment> getStudentEnrollments(
+            @PathVariable Long studentId
+    ) {
+
+        return enrollmentService.getEnrollmentsByStudent(
+                studentId
+        );
+    }
+
+    @GetMapping("/course/{courseId}")
+    public List<Enrollment> getCourseEnrollments(
+            @PathVariable Long courseId
+    ) {
+
+        return enrollmentService.getEnrollmentsByCourse(
+                courseId
+        );
+    }
+
+    @PutMapping("/{enrollmentId}")
+    public Enrollment updateEnrollment(
+            @PathVariable Long enrollmentId,
+            @RequestBody Enrollment enrollment
+    ) {
+
+        return enrollmentService.updateEnrollment(
+                enrollmentId,
+                enrollment
+        );
+    }
+
+    @DeleteMapping("/{enrollmentId}")
+    public void deleteEnrollment(
+            @PathVariable Long enrollmentId
+    ) {
+
+        enrollmentService.deleteEnrollment(
+                enrollmentId
+        );
+    }
+}
+package com.vishal.cms.program;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/v1/programs")
+@RequiredArgsConstructor
+public class ProgramController {
+
+    private final ProgramService programService;
+
+    @PostMapping("/department/{departmentId}")
+    public Program createProgram(
+            @RequestBody Program program,
+            @PathVariable Long departmentId
+    ) {
+        return programService.createProgram(
+                program,
+                departmentId
+        );
+    }
+
+    @GetMapping
+    public List<Program> getAllPrograms() {
+        return programService.getAllPrograms();
+    }
+
+    @GetMapping("/{id}")
+    public Program getProgramById(
+            @PathVariable Long id
+    ) {
+        return programService.getProgramById(id);
+    }
+
+    @PutMapping("/{id}")
+    public Program updateProgram(
+            @PathVariable Long id,
+            @RequestBody Program program
+    ) {
+        return programService.updateProgram(
+                id,
+                program
+        );
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteProgram(
+            @PathVariable Long id
+    ) {
+        programService.deleteProgram(id);
+    }
+}
+package com.vishal.cms.result;
+
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/v1/results")
+public class ResultController {
+
+    private final ResultService resultService;
+
+    public ResultController(ResultService resultService) {
+        this.resultService = resultService;
+    }
+
+    @PostMapping
+    public Result addResult(
+            @RequestParam Long studentId,
+            @RequestParam Long subjectId,
+            @RequestParam Double marksObtained,
+            @RequestParam Double maximumMarks) {
+
+        return resultService.addResult(
+                studentId,
+                subjectId,
+                marksObtained,
+                maximumMarks
+        );
+    }
+
+    @GetMapping
+    public List<Result> getAllResults() {
+        return resultService.getAllResults();
+    }
+
+    @GetMapping("/student/{studentId}")
+    public List<Result> getStudentResults(
+            @PathVariable Long studentId) {
+        return resultService.getStudentResults(studentId);
+    }
+
+    @DeleteMapping("/{id}")
+    public String deleteResult(@PathVariable Long id) {
+        resultService.deleteResult(id);
+        return "Result deleted successfully";
+    }
+}
+package com.vishal.cms.student;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/v1/students")
+@RequiredArgsConstructor
+public class StudentController {
+
+    private final StudentService studentService;
+
+    @GetMapping
+    public List<Student> getAllStudents(){
+        return studentService.getAllStudents();
+    }
+
+    @GetMapping("/{id}")
+    public Student getStudentById(@PathVariable Long id){
+        return studentService.getStudentById(id);
+    }
+
+    @PostMapping
+    public Student createStudent(
+            @Valid @RequestBody Student student
+    ) {
+        return studentService.saveStudent(student);
+    }
+
+    @PutMapping("/{id}")
+    public Student updateStudent(
+            @PathVariable Long id,
+            @RequestBody Student student
+    ){
+        return studentService.updateStudent(id, student);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteStudent(@PathVariable Long id){
+        studentService.deleteStudentById(id);
+    }
+}
+package com.vishal.cms.subject;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/v1/subjects")
+public class SubjectController {
+
+    private final SubjectService subjectService;
+
+    @GetMapping
+    public List<Subject> getAllSubjects() {
+        return subjectService.findAll();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Subject> getSubjectById(@PathVariable Long id) {
+        return ResponseEntity.ok(subjectService.findById(id));
+    }
+
+    @PostMapping
+    public Subject createSubject(@Valid @RequestBody Subject subject) {
+        return subjectService.saveSubject(subject);
+    }
+
+    @PutMapping("/{id}")
+    public Subject updateSubject(
+            @PathVariable Long id,
+            @Valid @RequestBody Subject subject) {
+
+        return subjectService.updateSubject(id, subject);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteSubject(@PathVariable Long id) {
+        subjectService.deleteSubject(id);
+    }
+}
+package com.vishal.cms.teacher;
+
+import com.vishal.cms.student.Student;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RequiredArgsConstructor
+@RestController
+@RequestMapping("/api/v1/teacher")
+public class TeacherController {
+
+    private TeacherService teacherService;
+
+    @GetMapping
+    public List<Teacher> getAllTeachers() {
+        return teacherService.findAll();
+    }
+
+    @GetMapping("/{id}")
+    public Teacher getTeacher(@PathVariable Long id) {
+        return teacherService.findByTeacherId(id);
+    }
+
+    @PutMapping("/{id}")
+    public Teacher updateTeacher(
+            @RequestBody Teacher teacher,
+            @PathVariable Long id) {
+
+        Teacher existing = teacherService.findByTeacherId(id);
+
+        existing.setFirstName(teacher.getFirstName());
+        existing.setLastName(teacher.getLastName());
+        existing.setEmail(teacher.getEmail());
+        existing.setPhone(teacher.getPhone());
+        existing.setQualification(teacher.getQualification());
+        existing.setSpecialization(teacher.getSpecialization());
+        existing.setSalary(teacher.getSalary());
+
+        return teacherService.saveTeacher(existing);
+    }
+
+    @PostMapping
+    public Teacher addTeacher(
+            @Valid @RequestBody Teacher teacher) {
+        return teacherService.saveTeacher(teacher);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteTeacher(@PathVariable Long id) {
+        teacherService.deleteById(id);
+    }
+}
+package com.vishal.cms.timetable;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/v1/timetables")
+@RequiredArgsConstructor
+public class TimetableController {
+
+    private final TimetableService timetableService;
+
+    @GetMapping
+    public List<Timetable> getAllTimetables() {
+        return timetableService.getAllTimetables();
+    }
+
+    @GetMapping("/{id}")
+    public Timetable getTimetableById(@PathVariable Long id) {
+        return timetableService.getTimetableById(id);
+    }
+
+    @PostMapping
+    public Timetable createTimetable(
+            @RequestBody Timetable timetable) {
+        return timetableService.createTimetable(timetable);
+    }
+
+    @PutMapping("/{id}")
+    public Timetable updateTimetable(
+            @PathVariable Long id,
+            @RequestBody Timetable timetable) {
+        return timetableService.updateTimetable(id, timetable);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteTimetable(@PathVariable Long id) {
+        timetableService.deleteTimetable(id);
+    }
+}
+package com.vishal.cms.user;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/v1/users")
+@RequiredArgsConstructor
+public class UserController {
+
+    private final UserService userService;
+
+    @PostMapping
+    public User create(
+            @RequestBody User user
+    ) {
+        return userService.create(user);
+    }
+
+    @GetMapping
+    public List<User> getAll() {
+        return userService.getAll();
+    }
+
+    @GetMapping("/{id}")
+    public User getById(
+            @PathVariable Long id
+    ) {
+        return userService.getById(id);
+    }
+
+    @PutMapping("/{id}")
+    public User update(
+            @PathVariable Long id,
+            @RequestBody User user
+    ) {
+        return userService.update(id, user);
+    }
+
+    @DeleteMapping("/{id}")
+    public void delete(
+            @PathVariable Long id
+    ) {
+        userService.delete(id);
+    }
+}

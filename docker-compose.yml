@@ -1,0 +1,30 @@
+name: cms
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: cms-mysql
+    restart: unless-stopped
+
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: cms
+      MYSQL_USER: cmsuser
+      MYSQL_PASSWORD: cmspass
+
+    ports:
+      - "3308:3306"
+
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  maildev:
+    image: maildev/maildev
+    container_name: cms-maildev
+
+    ports:
+      - "1081:1080"
+      - "1026:1025"
+
+volumes:
+  mysql_data:

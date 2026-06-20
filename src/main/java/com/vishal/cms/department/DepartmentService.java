@@ -1,51 +1,104 @@
 package com.vishal.cms.department;
 
+import com.vishal.cms.department.dto.DepartmentRequest;
+import com.vishal.cms.department.dto.DepartmentResponse;
 import com.vishal.cms.exceptions.DepartmentNotFoundException;
+import com.vishal.cms.exceptions.TeacherNotFoundException;
+import com.vishal.cms.teacher.Teacher;
+import com.vishal.cms.teacher.TeacherRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
 @RequiredArgsConstructor
+@Service
 public class DepartmentService {
+
     private final DepartmentRepository departmentRepository;
+    private final TeacherRepository teacherRepository;
+    private final DepartmentMapper departmentMapper;
 
-    public List<Department> getAllDepartments() {
-        return departmentRepository.findAll();
+    public List<DepartmentResponse> getAllDepartments() {
+
+        return departmentRepository.findAll()
+                .stream()
+                .map(departmentMapper::toResponse)
+                .toList();
     }
 
-    public Department getDepartment(Long id) {
-        return departmentRepository.findById(id)
+    public DepartmentResponse getDepartment(Long id) {
+
+        Department department = departmentRepository.findById(id)
                 .orElseThrow(() ->
-                        new DepartmentNotFoundException("Department not found with id: " + id));
+                        new DepartmentNotFoundException(
+                                "Department not found with id: " + id));
+
+        return departmentMapper.toResponse(department);
     }
 
-    public Department saveDepartment(Department department) {
+    public DepartmentResponse createDepartment(
+            DepartmentRequest request) {
 
-        if(departmentRepository.existsByCode(department.getCode())){
+        if (departmentRepository.existsByCode(request.getCode())) {
             throw new IllegalStateException(
                     "Department code already exists");
         }
 
-        return departmentRepository.save(department);
+        Department department =
+                departmentMapper.toEntity(request);
+
+        return departmentMapper.toResponse(
+                departmentRepository.save(department));
     }
 
-    public Department updateDepartment(Long id, Department updatedDepartment) {
+    public DepartmentResponse updateDepartment(
+            Long id,
+            DepartmentRequest request) {
 
-        Department department = getDepartment(id);
+        Department department = departmentRepository.findById(id)
+                .orElseThrow(() ->
+                        new DepartmentNotFoundException(
+                                "Department not found with id: " + id));
 
-        department.setCode(updatedDepartment.getCode());
-        department.setName(updatedDepartment.getName());
-        department.setDescription(updatedDepartment.getDescription());
-        department.setEmail(updatedDepartment.getEmail());
-        department.setPhoneNumber(updatedDepartment.getPhoneNumber());
+        department.setCode(request.getCode());
+        department.setName(request.getName());
+        department.setDescription(request.getDescription());
+        department.setEmail(request.getEmail());
+        department.setPhoneNumber(request.getPhoneNumber());
 
-        return departmentRepository.save(department);
+        return departmentMapper.toResponse(
+                departmentRepository.save(department));
+    }
+
+    public DepartmentResponse assignHod(
+            Long departmentId,
+            Long teacherId) {
+
+        Department department = departmentRepository.findById(departmentId)
+                .orElseThrow(() ->
+                        new DepartmentNotFoundException(
+                                "Department not found"));
+
+        Teacher teacher = teacherRepository.findById(teacherId)
+                .orElseThrow(() ->
+                        new TeacherNotFoundException(
+                                "Teacher not found"));
+
+        department.setHod(teacher);
+
+        return departmentMapper.toResponse(
+                departmentRepository.save(department));
     }
 
     public void deleteDepartment(Long id) {
-        departmentRepository.deleteById(id);
+
+        Department department = departmentRepository.findById(id)
+                .orElseThrow(() ->
+                        new DepartmentNotFoundException(
+                                "Department not found"));
+
+        departmentRepository.delete(department);
     }
 }

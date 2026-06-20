@@ -1,5 +1,8 @@
 package com.vishal.cms.attendance;
 
+import com.vishal.cms.attendance.dto.AttendanceRequest;
+import com.vishal.cms.attendance.dto.AttendanceResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,30 +16,35 @@ public class AttendanceController {
     private final AttendanceService attendanceService;
 
     @PostMapping
-    public Attendance createAttendance(
-            @RequestBody Attendance attendance
+    public AttendanceResponse createAttendance(
+            @Valid @RequestBody AttendanceRequest request
     ) {
-        return attendanceService.createAttendance(attendance);
+        return attendanceService.createAttendance(
+                request
+        );
     }
 
     @GetMapping
-    public List<Attendance> getAllAttendance() {
+    public List<AttendanceResponse> getAllAttendance() {
         return attendanceService.getAllAttendance();
     }
 
     @GetMapping("/{id}")
-    public Attendance getAttendanceById(
+    public AttendanceResponse getAttendanceById(
             @PathVariable Long id
     ) {
         return attendanceService.getAttendanceById(id);
     }
 
     @PutMapping("/{id}")
-    public Attendance updateAttendance(
+    public AttendanceResponse updateAttendance(
             @PathVariable Long id,
-            @RequestBody Attendance attendance
+            @Valid @RequestBody AttendanceRequest request
     ) {
-        return attendanceService.updateAttendance(id, attendance);
+        return attendanceService.updateAttendance(
+                id,
+                request
+        );
     }
 
     @DeleteMapping("/{id}")
@@ -44,6 +52,6 @@ public class AttendanceController {
             @PathVariable Long id
     ) {
         attendanceService.deleteAttendance(id);
-        return "Attendance record deleted successfully";
+        return "Attendance deleted successfully";
     }
 }

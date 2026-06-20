@@ -1,5 +1,7 @@
 package com.vishal.cms.student;
 
+import com.vishal.cms.student.dto.StudentRequest;
+import com.vishal.cms.student.dto.StudentResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -14,32 +16,39 @@ public class StudentController {
     private final StudentService studentService;
 
     @GetMapping
-    public List<Student> getAllStudents(){
+    public List<StudentResponse> getAllStudents() {
         return studentService.getAllStudents();
     }
 
     @GetMapping("/{id}")
-    public Student getStudentById(@PathVariable Long id){
+    public StudentResponse getStudentById(
+            @PathVariable Long id
+    ) {
         return studentService.getStudentById(id);
     }
 
     @PostMapping
-    public Student createStudent(
-            @Valid @RequestBody Student student
+    public StudentResponse createStudent(
+            @Valid @RequestBody StudentRequest request
     ) {
-        return studentService.saveStudent(student);
+        return studentService.createStudent(request);
     }
 
     @PutMapping("/{id}")
-    public Student updateStudent(
+    public StudentResponse updateStudent(
             @PathVariable Long id,
-            @RequestBody Student student
-    ){
-        return studentService.updateStudent(id, student);
+            @Valid @RequestBody StudentRequest request
+    ) {
+        return studentService.updateStudent(
+                id,
+                request
+        );
     }
 
     @DeleteMapping("/{id}")
-    public void deleteStudent(@PathVariable Long id){
+    public void deleteStudent(
+            @PathVariable Long id
+    ) {
         studentService.deleteStudentById(id);
     }
 }

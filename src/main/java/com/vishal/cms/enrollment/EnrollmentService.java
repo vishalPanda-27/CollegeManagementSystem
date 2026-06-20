@@ -2,6 +2,8 @@ package com.vishal.cms.enrollment;
 
 import com.vishal.cms.course.Course;
 import com.vishal.cms.course.CourseRepository;
+import com.vishal.cms.enrollment.dto.EnrollmentRequest;
+import com.vishal.cms.enrollment.dto.EnrollmentResponse;
 import com.vishal.cms.exceptions.CourseNotFoundException;
 import com.vishal.cms.exceptions.EnrollmentNotFoundException;
 import com.vishal.cms.exceptions.StudentNotFoundException;
@@ -10,6 +12,7 @@ import com.vishal.cms.student.StudentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -17,79 +20,170 @@ import java.util.List;
 public class EnrollmentService {
 
     private final EnrollmentRepository enrollmentRepository;
+    private final EnrollmentMapper enrollmentMapper;
     private final StudentRepository studentRepository;
     private final CourseRepository courseRepository;
 
-    public Enrollment createEnrollment(
-            Long studentId,
-            Long courseId,
-            Enrollment enrollment
+    public EnrollmentResponse createEnrollment(
+            EnrollmentRequest request
     ) {
 
-        Student student = studentRepository.findById(studentId)
+        Student student = studentRepository.findById(request.getStudentId())
                 .orElseThrow(() ->
-                        new StudentNotFoundException("Student not found with id: " + studentId));
+                        new StudentNotFoundException(
+                                "Student not found with id: "
+                                        + request.getStudentId()));
 
-        Course course = courseRepository.findById(courseId)
+        Course course = courseRepository.findById(request.getCourseId())
                 .orElseThrow(() ->
-                        new CourseNotFoundException("Course not found with id: " + courseId));
+                        new CourseNotFoundException(
+                                "Course not found with id: "
+                                        + request.getCourseId()));
 
         if (enrollmentRepository
                 .existsByStudentIdAndCourseId(
-                        studentId,
-                        courseId
-                )) {
+                        request.getStudentId(),
+                        request.getCourseId())) {
 
             throw new IllegalStateException(
                     "Student is already enrolled in this course"
             );
         }
 
+        Enrollment enrollment = new Enrollment();
+
         enrollment.setStudent(student);
         enrollment.setCourse(course);
+        enrollment.setEnrollmentDate(
+                request.getEnrollmentDate() == null
+                        ? LocalDate.now()
+                        : request.getEnrollmentDate()
+        );
+        enrollment.setSemester(request.getSemester());
+        enrollment.setAcademicYear(request.getAcademicYear());
+        enrollment.setStatus(request.getStatus());
+        enrollment.setGrade(request.getGrade());
 
-        return enrollmentRepository.save(enrollment);
+        return enrollmentMapper.toResponse(
+                enrollmentRepository.save(enrollment)
+        );
     }
 
-    public List<Enrollment> getAllEnrollments() {
-        return enrollmentRepository.findAll();
+    public List<EnrollmentResponse> getAllEnrollments() {
+
+        return enrollmentRepository.findAll()
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
     }
 
-    public Enrollment getEnrollmentById(Long enrollmentId) {
-        return enrollmentRepository.findById(enrollmentId)
-                .orElseThrow(() ->
-                        new EnrollmentNotFoundException(
-                                "Enrollment not found with id: " + enrollmentId
-                        ));
-    }
-
-    public List<Enrollment> getEnrollmentsByStudent(Long studentId) {
-        return enrollmentRepository.findByStudentId(studentId);
-    }
-
-    public List<Enrollment> getEnrollmentsByCourse(Long courseId) {
-        return enrollmentRepository.findByCourseId(courseId);
-    }
-
-    public Enrollment updateEnrollment(
-            Long enrollmentId,
-            Enrollment updatedEnrollment
+    public EnrollmentResponse getEnrollmentById(
+            Long enrollmentId
     ) {
 
-        Enrollment enrollment = getEnrollmentById(enrollmentId);
+        return mapToResponse(
+                enrollmentRepository.findById(enrollmentId)
+                        .orElseThrow(() ->
+                                new EnrollmentNotFoundException(
+                                        "Enrollment not found with id: "
+                                                + enrollmentId
+                                ))
+        );
+    }
 
-        enrollment.setSemester(updatedEnrollment.getSemester());
-        enrollment.setAcademicYear(updatedEnrollment.getAcademicYear());
-        enrollment.setStatus(updatedEnrollment.getStatus());
-        enrollment.setGrade(updatedEnrollment.getGrade());
+    public List<EnrollmentResponse> getEnrollmentsByStudent(
+            Long studentId
+    ) {
 
-        return enrollmentRepository.save(enrollment);
+        return enrollmentRepository
+                .findByStudentId(studentId)
+                .stream()
+                .map(enrollmentMapper::toResponse)
+                .toList();
+    }
+
+    public List<EnrollmentResponse> getEnrollmentsByCourse(
+            Long courseId
+    ) {
+
+        return enrollmentRepository
+                .findByCourseId(courseId)
+                .stream()
+                .map(enrollmentMapper::toResponse)
+                .toList();
+    }
+
+    public EnrollmentResponse updateEnrollment(
+            Long enrollmentId,
+            EnrollmentRequest request
+    ) {
+
+        Enrollment enrollment = enrollmentRepository
+                .findById(enrollmentId)
+                .orElseThrow(() ->
+                        new EnrollmentNotFoundException(
+                                "Enrollment not found with id: "
+                                        + enrollmentId
+                        ));
+
+        enrollment.setSemester(request.getSemester());
+        enrollment.setAcademicYear(request.getAcademicYear());
+        enrollment.setStatus(request.getStatus());
+        enrollment.setGrade(request.getGrade());
+
+        return enrollmentMapper.toResponse(
+                enrollmentRepository.save(enrollment)
+        );
     }
 
     public void deleteEnrollment(Long enrollmentId) {
 
-        Enrollment enrollment = getEnrollmentById(enrollmentId);
+        Enrollment enrollment = enrollmentRepository
+                .findById(enrollmentId)
+                .orElseThrow(() ->
+                        new EnrollmentNotFoundException(
+                                "Enrollment not found with id: "
+                                        + enrollmentId
+                        ));
 
         enrollmentRepository.delete(enrollment);
+    }
+
+    private EnrollmentResponse mapToResponse(
+            Enrollment enrollment
+    ) {
+
+        return EnrollmentResponse.builder()
+                .enrollmentId(enrollment.getEnrollmentId())
+                .studentId(
+                        enrollment.getStudent().getId()
+                )
+                .studentName(
+                        enrollment.getStudent().getFirstName()
+                                + " "
+                                + enrollment.getStudent().getLastName()
+                )
+                .courseId(
+                        enrollment.getCourse().getId()
+                )
+                .courseName(
+                        enrollment.getCourse().getCourseName()
+                )
+                .enrollmentDate(
+                        enrollment.getEnrollmentDate()
+                )
+                .semester(
+                        enrollment.getSemester()
+                )
+                .academicYear(
+                        enrollment.getAcademicYear()
+                )
+                .status(
+                        enrollment.getStatus()
+                )
+                .grade(
+                        enrollment.getGrade()
+                )
+                .build();
     }
 }

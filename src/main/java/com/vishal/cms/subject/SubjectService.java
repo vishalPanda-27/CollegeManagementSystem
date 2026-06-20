@@ -1,6 +1,14 @@
 package com.vishal.cms.subject;
 
+import com.vishal.cms.course.Course;
+import com.vishal.cms.course.CourseRepository;
+import com.vishal.cms.department.Department;
+import com.vishal.cms.department.DepartmentRepository;
+import com.vishal.cms.exceptions.CourseNotFoundException;
+import com.vishal.cms.exceptions.DepartmentNotFoundException;
 import com.vishal.cms.exceptions.SubjectNotFoundException;
+import com.vishal.cms.subject.dto.SubjectRequest;
+import com.vishal.cms.subject.dto.SubjectResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -11,43 +19,112 @@ import java.util.List;
 public class SubjectService {
 
     private final SubjectRepository subjectRepository;
+    private final DepartmentRepository departmentRepository;
+    private final CourseRepository courseRepository;
+    private final SubjectMapper subjectMapper;
 
-    public List<Subject> findAll() {
-        return subjectRepository.findAll();
+    public List<SubjectResponse> findAll() {
+
+        return subjectRepository.findAll()
+                .stream()
+                .map(subjectMapper::toResponse)
+                .toList();
     }
 
-    public Subject findById(Long id) {
-        return subjectRepository.findById(id).orElseThrow(
-                ()-> new SubjectNotFoundException("Subject not found with id: " + id)
+    public SubjectResponse findById(Long id) {
+
+        Subject subject = subjectRepository.findById(id)
+                .orElseThrow(() ->
+                        new SubjectNotFoundException(
+                                "Subject not found with id: " + id
+                        ));
+
+        return subjectMapper.toResponse(subject);
+    }
+
+    public SubjectResponse createSubject(
+            SubjectRequest request
+    ) {
+
+        if (subjectRepository.existsBySubjectCode(
+                request.getSubjectCode())) {
+
+            throw new IllegalStateException(
+                    "Subject code already exists"
+            );
+        }
+
+        Department department =
+                departmentRepository.findById(
+                                request.getDepartmentId())
+                        .orElseThrow(() ->
+                                new DepartmentNotFoundException(
+                                        "Department not found"));
+
+        Course course =
+                courseRepository.findById(
+                                request.getCourseId())
+                        .orElseThrow(() ->
+                                new CourseNotFoundException(
+                                        "Course not found"));
+
+        Subject subject =
+                subjectMapper.toEntity(
+                        request,
+                        department,
+                        course
+                );
+
+        return subjectMapper.toResponse(
+                subjectRepository.save(subject)
         );
     }
 
-    public Subject saveSubject(Subject subject) {
+    public SubjectResponse updateSubject(
+            Long id,
+            SubjectRequest request
+    ) {
 
-        if (subjectRepository.existsBySubjectCode(subject.getSubjectCode())) {
-            throw new IllegalStateException("Subject code already exists");
-        }
+        Subject subject =
+                subjectRepository.findById(id)
+                        .orElseThrow(() ->
+                                new SubjectNotFoundException(
+                                        "Subject not found with id: " + id));
 
-        return subjectRepository.save(subject);
-    }
+        Department department =
+                departmentRepository.findById(
+                                request.getDepartmentId())
+                        .orElseThrow(() ->
+                                new DepartmentNotFoundException(
+                                        "Department not found"));
 
-    public Subject updateSubject(Long id, Subject updatedSubject) {
+        Course course =
+                courseRepository.findById(
+                                request.getCourseId())
+                        .orElseThrow(() ->
+                                new CourseNotFoundException(
+                                        "Course not found"));
 
-        Subject existing = findById(id);
+        subjectMapper.updateEntity(
+                subject,
+                request,
+                department,
+                course
+        );
 
-        existing.setSubjectName(updatedSubject.getSubjectName());
-        existing.setSubjectCode(updatedSubject.getSubjectCode());
-        existing.setCredits(updatedSubject.getCredits());
-        existing.setTheoryHours(updatedSubject.getTheoryHours());
-        existing.setPracticalHours(updatedSubject.getPracticalHours());
-        existing.setSemester(updatedSubject.getSemester());
-        existing.setActive(updatedSubject.getActive());
-
-        return subjectRepository.save(existing);
+        return subjectMapper.toResponse(
+                subjectRepository.save(subject)
+        );
     }
 
     public void deleteSubject(Long id) {
-        Subject subject = findById(id);
+
+        Subject subject =
+                subjectRepository.findById(id)
+                        .orElseThrow(() ->
+                                new SubjectNotFoundException(
+                                        "Subject not found with id: " + id));
+
         subjectRepository.delete(subject);
     }
 }

@@ -1,5 +1,8 @@
 package com.vishal.cms.enrollment;
 
+import com.vishal.cms.enrollment.dto.EnrollmentRequest;
+import com.vishal.cms.enrollment.dto.EnrollmentResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,26 +16,23 @@ public class EnrollmentController {
     private final EnrollmentService enrollmentService;
 
     @PostMapping
-    public Enrollment createEnrollment(
-            @RequestParam Long studentId,
-            @RequestParam Long courseId,
-            @RequestBody Enrollment enrollment
+    public EnrollmentResponse createEnrollment(
+            @Valid @RequestBody EnrollmentRequest request
     ) {
 
         return enrollmentService.createEnrollment(
-                studentId,
-                courseId,
-                enrollment
+                request
         );
     }
 
     @GetMapping
-    public List<Enrollment> getAllEnrollments() {
+    public List<EnrollmentResponse> getAllEnrollments() {
+
         return enrollmentService.getAllEnrollments();
     }
 
     @GetMapping("/{enrollmentId}")
-    public Enrollment getEnrollmentById(
+    public EnrollmentResponse getEnrollmentById(
             @PathVariable Long enrollmentId
     ) {
 
@@ -42,7 +42,7 @@ public class EnrollmentController {
     }
 
     @GetMapping("/student/{studentId}")
-    public List<Enrollment> getStudentEnrollments(
+    public List<EnrollmentResponse> getStudentEnrollments(
             @PathVariable Long studentId
     ) {
 
@@ -52,7 +52,7 @@ public class EnrollmentController {
     }
 
     @GetMapping("/course/{courseId}")
-    public List<Enrollment> getCourseEnrollments(
+    public List<EnrollmentResponse> getCourseEnrollments(
             @PathVariable Long courseId
     ) {
 
@@ -62,14 +62,14 @@ public class EnrollmentController {
     }
 
     @PutMapping("/{enrollmentId}")
-    public Enrollment updateEnrollment(
+    public EnrollmentResponse updateEnrollment(
             @PathVariable Long enrollmentId,
-            @RequestBody Enrollment enrollment
+            @Valid @RequestBody EnrollmentRequest request
     ) {
 
         return enrollmentService.updateEnrollment(
                 enrollmentId,
-                enrollment
+                request
         );
     }
 

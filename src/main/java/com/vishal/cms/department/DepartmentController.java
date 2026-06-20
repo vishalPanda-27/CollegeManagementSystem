@@ -1,5 +1,8 @@
 package com.vishal.cms.department;
 
+import com.vishal.cms.department.dto.DepartmentRequest;
+import com.vishal.cms.department.dto.DepartmentResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,31 +16,47 @@ public class DepartmentController {
     private final DepartmentService departmentService;
 
     @GetMapping
-    public List<Department> getAllDepartments() {
+    public List<DepartmentResponse> getAllDepartments() {
         return departmentService.getAllDepartments();
     }
 
     @GetMapping("/{id}")
-    public Department getDepartmentById(@PathVariable Long id) {
+    public DepartmentResponse getDepartmentById(
+            @PathVariable Long id) {
+
         return departmentService.getDepartment(id);
     }
 
     @PostMapping
-    public Department addDepartment(@RequestBody Department department) {
-        return departmentService.saveDepartment(department);
+    public DepartmentResponse createDepartment(
+            @Valid @RequestBody DepartmentRequest request) {
+
+        return departmentService.createDepartment(request);
     }
 
     @PutMapping("/{id}")
-    public Department updateDepartment(
+    public DepartmentResponse updateDepartment(
             @PathVariable Long id,
-            @RequestBody Department department) {
+            @Valid @RequestBody DepartmentRequest request) {
 
-        return departmentService.updateDepartment(id, department);
+        return departmentService.updateDepartment(id, request);
+    }
+
+    @PostMapping("/{departmentId}/assign-hod/{teacherId}")
+    public DepartmentResponse assignHod(
+            @PathVariable Long departmentId,
+            @PathVariable Long teacherId) {
+
+        return departmentService.assignHod(
+                departmentId,
+                teacherId
+        );
     }
 
     @DeleteMapping("/{id}")
-    public void deleteDepartmentById(@PathVariable Long id) {
+    public void deleteDepartment(
+            @PathVariable Long id) {
+
         departmentService.deleteDepartment(id);
     }
-
 }

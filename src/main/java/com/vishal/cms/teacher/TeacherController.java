@@ -1,6 +1,8 @@
 package com.vishal.cms.teacher;
 
 import com.vishal.cms.student.Student;
+import com.vishal.cms.teacher.dto.TeacherRequest;
+import com.vishal.cms.teacher.dto.TeacherResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,37 +18,28 @@ public class TeacherController {
     private final TeacherService teacherService;
 
     @GetMapping
-    public List<Teacher> getAllTeachers() {
+    public List<TeacherResponse> getAllTeachers() {
         return teacherService.findAll();
     }
 
     @GetMapping("/{id}")
-    public Teacher getTeacher(@PathVariable Long id) {
+    public TeacherResponse getTeacher(@PathVariable Long id) {
         return teacherService.findByTeacherId(id);
     }
 
     @PutMapping("/{id}")
-    public Teacher updateTeacher(
-            @RequestBody Teacher teacher,
-            @PathVariable Long id) {
+    public TeacherResponse updateTeacher(
+            @PathVariable Long id,
+            @Valid @RequestBody TeacherRequest request) {
 
-        Teacher existing = teacherService.findByTeacherId(id);
-
-        existing.setFirstName(teacher.getFirstName());
-        existing.setLastName(teacher.getLastName());
-        existing.setEmail(teacher.getEmail());
-        existing.setPhone(teacher.getPhone());
-        existing.setQualification(teacher.getQualification());
-        existing.setSpecialization(teacher.getSpecialization());
-        existing.setSalary(teacher.getSalary());
-
-        return teacherService.saveTeacher(existing);
+        return teacherService.updateTeacher(id, request);
     }
 
     @PostMapping
-    public Teacher addTeacher(
-            @Valid @RequestBody Teacher teacher) {
-        return teacherService.saveTeacher(teacher);
+    public TeacherResponse addTeacher(
+            @Valid @RequestBody TeacherRequest request) {
+
+        return teacherService.createTeacher(request);
     }
 
     @DeleteMapping("/{id}")

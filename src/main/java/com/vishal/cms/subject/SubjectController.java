@@ -1,44 +1,51 @@
 package com.vishal.cms.subject;
 
+import com.vishal.cms.subject.dto.SubjectRequest;
+import com.vishal.cms.subject.dto.SubjectResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/api/v1/subjects")
+@RequiredArgsConstructor
 public class SubjectController {
 
     private final SubjectService subjectService;
 
     @GetMapping
-    public List<Subject> getAllSubjects() {
+    public List<SubjectResponse> getAllSubjects() {
         return subjectService.findAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Subject> getSubjectById(@PathVariable Long id) {
-        return ResponseEntity.ok(subjectService.findById(id));
+    public SubjectResponse getSubjectById(
+            @PathVariable Long id
+    ) {
+        return subjectService.findById(id);
     }
 
     @PostMapping
-    public Subject createSubject(@Valid @RequestBody Subject subject) {
-        return subjectService.saveSubject(subject);
+    public SubjectResponse createSubject(
+            @Valid @RequestBody SubjectRequest request
+    ) {
+        return subjectService.createSubject(request);
     }
 
     @PutMapping("/{id}")
-    public Subject updateSubject(
+    public SubjectResponse updateSubject(
             @PathVariable Long id,
-            @Valid @RequestBody Subject subject) {
-
-        return subjectService.updateSubject(id, subject);
+            @Valid @RequestBody SubjectRequest request
+    ) {
+        return subjectService.updateSubject(id, request);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteSubject(@PathVariable Long id) {
+    public void deleteSubject(
+            @PathVariable Long id
+    ) {
         subjectService.deleteSubject(id);
     }
 }

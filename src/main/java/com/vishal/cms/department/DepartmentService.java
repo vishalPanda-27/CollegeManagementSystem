@@ -7,7 +7,6 @@ import com.vishal.cms.exceptions.TeacherNotFoundException;
 import com.vishal.cms.teacher.Teacher;
 import com.vishal.cms.teacher.TeacherRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -45,6 +44,10 @@ public class DepartmentService {
             throw new IllegalStateException(
                     "Department code already exists");
         }
+        if(departmentRepository.existsByEmail(request.getEmail())) {
+            throw new IllegalStateException("Email already exists");
+        }
+
 
         Department department =
                 departmentMapper.toEntity(request);
@@ -56,6 +59,18 @@ public class DepartmentService {
     public DepartmentResponse updateDepartment(
             Long id,
             DepartmentRequest request) {
+
+        Department existing =
+                departmentRepository.findByCode(
+                        request.getCode()
+                ).orElse(null);
+
+        if (existing != null &&
+                !existing.getId().equals(id)) {
+            throw new IllegalStateException(
+                    "Department code already exists"
+            );
+        }
 
         Department department = departmentRepository.findById(id)
                 .orElseThrow(() ->
@@ -86,6 +101,16 @@ public class DepartmentService {
                         new TeacherNotFoundException(
                                 "Teacher not found"));
 
+        if (teacher.getDepartment() == null ||
+                !teacher.getDepartment()
+                        .getId()
+                        .equals(departmentId)) {
+
+            throw new IllegalStateException(
+                    "Teacher does not belong to this department"
+            );
+        }
+
         department.setHod(teacher);
 
         return departmentMapper.toResponse(
@@ -98,6 +123,24 @@ public class DepartmentService {
                 .orElseThrow(() ->
                         new DepartmentNotFoundException(
                                 "Department not found"));
+
+        if (!department.getStudents().isEmpty()) {
+            throw new IllegalStateException(
+                    "Cannot delete department with students"
+            );
+        }
+        if (!department.getTeachers().isEmpty()){
+            throw new IllegalStateException("Cannot delete department with teachers");
+        }
+        if (!department.getCourses().isEmpty()){
+            throw new IllegalStateException("Cannot delete department with courses");
+        }
+        if (!department.getPrograms().isEmpty()){
+            throw new IllegalStateException("Cannot delete department with programs");
+        }
+        if (!department.getClassrooms().isEmpty()){
+            throw new IllegalStateException("Cannot delete department with classrooms");
+        }
 
         departmentRepository.delete(department);
     }

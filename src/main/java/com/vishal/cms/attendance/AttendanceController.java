@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -36,6 +37,27 @@ public class AttendanceController {
         return attendanceService.getAttendanceById(id);
     }
 
+    @GetMapping("/student/{studentId}")
+    public List<AttendanceResponse> getAttendanceByStudentId(@PathVariable Long studentId) {
+        return attendanceService.getAttendanceOfStudent(studentId);
+    }
+
+    @GetMapping("subject/{subjectId}")
+    public List<AttendanceResponse> getAttendanceBySubjectId(@PathVariable Long subjectId) {
+        return attendanceService.getAttendanceOfSubject(subjectId);
+    }
+
+    @GetMapping("/teacher/{teacherId}")
+    public List<AttendanceResponse> getAttendanceByTeacherId(@PathVariable Long teacherId) {
+        return attendanceService.getAttendanceByTeacher(teacherId);
+    }
+
+    @GetMapping("date/{date}")
+    public List<AttendanceResponse> getAttendanceByDate(@PathVariable LocalDate date) {
+        return attendanceService.getAttendanceOn(date);
+    }
+
+
     @PutMapping("/{id}")
     public AttendanceResponse updateAttendance(
             @PathVariable Long id,
@@ -48,10 +70,9 @@ public class AttendanceController {
     }
 
     @DeleteMapping("/{id}")
-    public String deleteAttendance(
+    public void deleteAttendance(
             @PathVariable Long id
     ) {
         attendanceService.deleteAttendance(id);
-        return "Attendance deleted successfully";
     }
 }

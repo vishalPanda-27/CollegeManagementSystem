@@ -2,6 +2,7 @@ package com.vishal.cms.user;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository
@@ -14,4 +15,13 @@ public interface UserRepository
     boolean existsByEmail(String email);
 
     boolean existsByUsername(String username);
+
+
+    List<User> findByRole(Role role);
+
+    List<User> findByEnabled(boolean enabled);
+
+    long countByRole(Role role);
+
+    long countByEnabled(boolean enabled);
 }

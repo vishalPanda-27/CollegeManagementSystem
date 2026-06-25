@@ -2,6 +2,7 @@ package com.vishal.cms.attendance.dto;
 
 import com.vishal.cms.attendance.AttendanceStatus;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -18,6 +19,7 @@ public class AttendanceRequest {
     private Long markedById;
 
     @NotNull
+    @PastOrPresent
     private LocalDate attendanceDate;
 
     @NotNull

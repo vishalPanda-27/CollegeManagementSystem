@@ -2,6 +2,8 @@ package com.vishal.cms.teacher.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -16,22 +18,27 @@ public class TeacherRequest {
     @NotBlank
     private String lastName;
 
+    @NotBlank
     @Email
     private String email;
 
     @NotBlank
     private String phone;
 
+    @NotBlank
     private String qualification;
 
+    @NotBlank
     private String specialization;
 
-    private LocalDate joiningDate;
+    private LocalDate joiningDate = LocalDate.now();
 
+    @Positive
     private Double salary;
 
-    private boolean active;
+    private boolean active=true;
 
+    @NotNull
     private Long departmentId;
 
     private Long userId;
@@ -39,4 +46,6 @@ public class TeacherRequest {
     private Set<Long> subjectIds;
 
     private Set<Long> courseIds;
+
+
 }

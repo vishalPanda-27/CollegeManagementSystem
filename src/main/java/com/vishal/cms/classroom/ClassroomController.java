@@ -1,9 +1,10 @@
 package com.vishal.cms.classroom;
 
+import com.vishal.cms.classroom.dto.ClassroomRequest;
+import com.vishal.cms.classroom.dto.ClassroomResponse;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.RestController;
 
-import com.vishal.cms.department.Department;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,33 +21,28 @@ public class ClassroomController {
     }
 
     @PostMapping
-    public Classroom createClassroom(
-            @Valid @RequestBody Classroom classroom
+    public ClassroomResponse createClassroom(
+            @Valid @RequestBody ClassroomRequest request
     ) {
-        return classroomService.createClassroom(classroom);
+        return classroomService.createClassroom(request);
     }
-
     @GetMapping("/{id}")
-    public Classroom getClassroomById(
+    public ClassroomResponse getClassroomById(
             @PathVariable Long id
     ) {
         return classroomService.getClassroomById(id);
     }
-
     @GetMapping
-    public List<Classroom> getAllClassrooms() {
+    public List<ClassroomResponse> getAllClassrooms() {
         return classroomService.getAllClassrooms();
     }
-
     @PutMapping("/{id}")
-    public Classroom updateClassroom(
+    public ClassroomResponse updateClassroom(
             @PathVariable Long id,
-            @Valid
-            @RequestBody Classroom classroom
+            @Valid @RequestBody ClassroomRequest request
     ) {
-        return classroomService.updateClassroom(id, classroom);
+        return classroomService.updateClassroom(id, request);
     }
-
     @DeleteMapping("/{id}")
     public void deleteClassroom(
             @PathVariable Long id
@@ -55,29 +51,31 @@ public class ClassroomController {
     }
 
     @GetMapping("/available")
-    public List<Classroom> getAvailableClassrooms() {
+    public List<ClassroomResponse> getAvailableClassrooms() {
         return classroomService.getAvailableClassrooms();
+
     }
 
     @GetMapping("/building/{buildingName}")
-    public List<Classroom> getClassroomsByBuilding(
+    public List<ClassroomResponse> getClassroomsByBuilding(
             @PathVariable String buildingName
     ) {
         return classroomService.getClassroomsByBuilding(buildingName);
     }
 
-    @GetMapping("/departments/{departmentId}/classrooms")
-    public List<Classroom> getClassroomsByDepartment(
+    @GetMapping("/department/{departmentId}")
+    public List<ClassroomResponse> getClassroomsByDepartment(
             @PathVariable Long departmentId
     ) {
         return classroomService.getClassroomsByDepartment(departmentId);
+
     }
 
     @PatchMapping("/{id}/status")
-    public Classroom changeStatus(
+    public ClassroomResponse changeStatus(
             @PathVariable Long id,
             @RequestParam RoomStatus status
     ) {
-        return classroomService.changeStatus(id, status);
+        return classroomService.changeStatus(id,status);
     }
 }

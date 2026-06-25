@@ -3,6 +3,8 @@ package com.vishal.cms.program;
 import com.vishal.cms.audit.BaseEntity;
 import com.vishal.cms.department.Department;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
@@ -35,6 +37,8 @@ public class Program extends BaseEntity {
     @Column(name = "program_code", nullable = false, unique = true)
     private String programCode;
 
+    @Min(1)
+    @Max(10)
     @Column(name = "duration_years")
     private Integer durationYears;
 

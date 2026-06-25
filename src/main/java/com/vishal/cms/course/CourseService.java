@@ -17,12 +17,13 @@ public class CourseService {
 
     private final CourseRepository courseRepository;
     private final DepartmentRepository departmentRepository;
+    private final CourseMapper courseMapper;
 
     public List<CourseResponse> getAllCourses() {
 
         return courseRepository.findAll()
                 .stream()
-                .map(CourseMapper::toResponse)
+                .map(courseMapper::toResponse)
                 .toList();
     }
     public CourseResponse getCourseById(Long id) {
@@ -34,7 +35,7 @@ public class CourseService {
                         )
                 );
 
-        return CourseMapper.toResponse(course);
+        return courseMapper.toResponse(course);
     }
 
     public Course findByCourseId(Long courseId) {
@@ -45,6 +46,14 @@ public class CourseService {
 
     public CourseResponse createCourse(CourseRequest request) {
 
+        if (courseRepository.existsByCourseCode(
+                request.getCourseCode()
+        )) {
+            throw new IllegalStateException(
+                    "Course code already exists"
+            );
+        }
+
         Department department =
                 departmentRepository.findById(request.getDepartmentId())
                         .orElseThrow(
@@ -53,24 +62,28 @@ public class CourseService {
                                 )
                         );
 
-        Course course = new Course();
+        Course course = courseMapper.toEntity(request, department);
 
-        course.setCourseCode(request.getCourseCode());
-        course.setCourseName(request.getCourseName());
-        course.setCredits(request.getCredits());
-        course.setSemester(request.getSemester());
-        course.setDescription(request.getDescription());
-        course.setDepartment(department);
-
-        return CourseMapper.toResponse(
-                courseRepository.save(course)
-        );
+        return courseMapper.toResponse(courseRepository.save(course));
     }
 
     public CourseResponse updateCourse(
             Long id,
             CourseRequest request
     ) {
+        Course existing =
+                courseRepository.findByCourseCode(
+                        request.getCourseCode()
+                ).orElse(null);
+
+        if (
+                existing != null &&
+                        !existing.getId().equals(id)
+        ) {
+            throw new IllegalStateException(
+                    "Course code already exists"
+            );
+        }
 
         Course course = courseRepository.findById(id)
                 .orElseThrow(
@@ -83,11 +96,10 @@ public class CourseService {
                 departmentRepository.findById(
                         request.getDepartmentId()
                 ).orElseThrow(
-                        () -> new RuntimeException(
+                        () -> new DepartmentNotFoundException(
                                 "Department not found"
                         )
                 );
-
         course.setCourseCode(request.getCourseCode());
         course.setCourseName(request.getCourseName());
         course.setCredits(request.getCredits());
@@ -95,9 +107,7 @@ public class CourseService {
         course.setDescription(request.getDescription());
         course.setDepartment(department);
 
-        return CourseMapper.toResponse(
-                courseRepository.save(course)
-        );
+        return courseMapper.toResponse(courseRepository.save(course));
     }
 
     public void deleteCourse(Long id) {
@@ -109,6 +119,35 @@ public class CourseService {
                         )
                 );
 
+        if (course.getEnrollments() != null && !course.getEnrollments().isEmpty()) {
+            throw new IllegalStateException(
+                    "Cannot delete course with enrollments"
+            );
+        }
+
         courseRepository.delete(course);
+    }
+
+    public List<CourseResponse> getCoursesBySemester(Integer semester) {
+
+        return courseRepository.findBySemester(semester)
+                .stream()
+                .map(courseMapper::toResponse)
+                .toList();
+    }
+
+    public List<CourseResponse> getCoursesByDepartment(Long departmentId) {
+
+        departmentRepository.findById(departmentId)
+                .orElseThrow(
+                        () -> new DepartmentNotFoundException(
+                                "Department not found with id: " + departmentId
+                        )
+                );
+
+        return courseRepository.findByDepartmentId(departmentId)
+                .stream()
+                .map(courseMapper::toResponse)
+                .toList();
     }
 }

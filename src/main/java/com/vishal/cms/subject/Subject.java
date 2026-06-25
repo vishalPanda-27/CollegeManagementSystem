@@ -49,12 +49,20 @@ public class Subject extends BaseEntity {
 
     private Boolean active = true;
 
-    @ManyToOne
-    @JoinColumn(name = "department_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "department_id",
+            nullable = false,
+            foreignKey = @ForeignKey(
+                    name = "fk_subject_department")
+    )
     private Department department;
 
-    @ManyToOne
-    @JoinColumn(name = "course_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "course_id",
+            nullable = false,
+            foreignKey = @ForeignKey(
+                    name = "fk_subject_course"
+            ))
     private Course course;
 
     @ManyToMany(mappedBy = "subjects")

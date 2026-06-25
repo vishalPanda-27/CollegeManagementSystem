@@ -1,5 +1,4 @@
 package com.vishal.cms.enrollment;
-import com.vishal.cms.enrollment.Enrollment;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -7,12 +6,19 @@ import java.util.List;
 public interface EnrollmentRepository
         extends JpaRepository<Enrollment, Long> {
 
-    boolean existsByStudentIdAndCourseId(
+    boolean existsByStudent_IdAndCourse_Id(
             Long studentId,
             Long courseId
     );
 
-    List<Enrollment> findByStudentId(Long studentId);
+    List<Enrollment> findByStudent_Id(Long studentId);
 
-    List<Enrollment> findByCourseId(Long courseId);
+    List<Enrollment> findByCourse_Id(Long courseId);
+
+    List<Enrollment> findByStatus(EnrollmentStatus status);
+
+    List<Enrollment> findByStudent_IdAndStatus(
+            Long studentId,
+            EnrollmentStatus status
+    );
 }

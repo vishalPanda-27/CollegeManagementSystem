@@ -1,5 +1,7 @@
 package com.vishal.cms.classroom;
 
+import com.vishal.cms.classroom.dto.ClassroomRequest;
+import com.vishal.cms.classroom.dto.ClassroomResponse;
 import com.vishal.cms.department.Department;
 import com.vishal.cms.department.DepartmentRepository;
 import com.vishal.cms.exceptions.DepartmentNotFoundException;
@@ -7,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.vishal.cms.exceptions.ClassroomNotFoundException;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -16,72 +17,139 @@ public class ClassroomService {
     private final ClassroomRepository classroomRepository;
     private final DepartmentRepository departmentRepository;
 
-    public Classroom createClassroom(Classroom classroom) {
+    private final ClassroomMapper classroomMapper;
+
+    public ClassroomResponse createClassroom(
+            ClassroomRequest request
+    ) {
 
         if (classroomRepository.existsByRoomNumber(
-                classroom.getRoomNumber())) {
+                request.getRoomNumber())) {
 
             throw new IllegalStateException(
                     "Room number already exists");
         }
 
-        return classroomRepository.save(classroom);
+        Department department = null;
+
+        if (request.getDepartmentId() != null) {
+
+            department = departmentRepository
+                    .findById(request.getDepartmentId())
+                    .orElseThrow(() ->
+                            new DepartmentNotFoundException(
+                                    "Department not found with id: "
+                                            + request.getDepartmentId()));
+        }
+
+        Classroom classroom =
+                classroomMapper.toEntity(request, department);
+
+        return classroomMapper.toResponse(
+                classroomRepository.save(classroom)
+        );
     }
 
-    public Classroom getClassroomById(Long id) {
-        return classroomRepository.findById(id)
+    public ClassroomResponse getClassroomById(Long id) {
+
+        return classroomMapper.toResponse(
+                classroomRepository.findById(id)
+                        .orElseThrow(() ->
+                                new ClassroomNotFoundException(
+                                        "Classroom not found with id: " + id
+                                ))
+        );
+    }
+
+    public List<ClassroomResponse> getAllClassrooms() {
+
+        return classroomRepository.findAll()
+                .stream()
+                .map(classroomMapper::toResponse)
+                .toList();
+    }
+
+    public ClassroomResponse updateClassroom(
+            Long id,
+            ClassroomRequest request
+    ) {
+
+        Classroom classroom = classroomRepository.findById(id)
                 .orElseThrow(() ->
                         new ClassroomNotFoundException(
                                 "Classroom not found with id: " + id
                         ));
-    }
 
-    public List<Classroom> getAllClassrooms() {
-        return classroomRepository.findAll();
-    }
+        Department department = null;
 
-    public Classroom updateClassroom(Long id, Classroom updatedClassroom) {
+        if (request.getDepartmentId() != null) {
 
-        Classroom classroom = getClassroomById(id);
+            department = departmentRepository
+                    .findById(request.getDepartmentId())
+                    .orElseThrow(() ->
+                            new DepartmentNotFoundException(
+                                    "Department not found with id: "
+                                            + request.getDepartmentId()));
+        }
 
-        classroom.setRoomNumber(updatedClassroom.getRoomNumber());
-        classroom.setBuildingName(updatedClassroom.getBuildingName());
-        classroom.setFloor(updatedClassroom.getFloor());
-        classroom.setCapacity(updatedClassroom.getCapacity());
-        classroom.setRoomType(updatedClassroom.getRoomType());
-        classroom.setStatus(updatedClassroom.getStatus());
-        classroom.setDepartment(updatedClassroom.getDepartment());
+        classroom.setRoomNumber(request.getRoomNumber());
+        classroom.setBuildingName(request.getBuildingName());
+        classroom.setFloor(request.getFloor());
+        classroom.setCapacity(request.getCapacity());
+        classroom.setRoomType(request.getRoomType());
+        classroom.setStatus(request.getStatus());
+        classroom.setDepartment(department);
 
-        return classroomRepository.save(classroom);
+        return classroomMapper.toResponse(
+                classroomRepository.save(classroom)
+        );
     }
 
     public void deleteClassroom(Long id) {
-        Classroom classroom = getClassroomById(id);
+
+        Classroom classroom = classroomRepository.findById(id)
+                .orElseThrow(() ->
+                        new ClassroomNotFoundException(
+                                "Classroom not found with id: " + id
+                        ));
+
         classroomRepository.delete(classroom);
     }
 
-    public List<Classroom> getAvailableClassrooms() {
-        return classroomRepository.findByStatus(RoomStatus.AVAILABLE);
+    public List<ClassroomResponse> getAvailableClassrooms() {
+        return classroomRepository.findByStatus(RoomStatus.AVAILABLE)
+                .stream()
+                .map(classroomMapper ::toResponse)
+                .toList();
     }
 
-    public List<Classroom> getClassroomsByDepartment(long departmentId) {
+    public List<ClassroomResponse> getClassroomsByDepartment(long departmentId) {
         Department department = departmentRepository.findById(departmentId).orElseThrow(
                 ()-> new DepartmentNotFoundException("Department not found with id: " + departmentId)
         );
-        return classroomRepository.findByDepartment(department);
+        return classroomRepository.findByDepartment(department)
+                .stream()
+                .map(classroomMapper ::toResponse)
+                .toList();
     }
 
-    public List<Classroom> getClassroomsByBuilding(String buildingName) {
-        return classroomRepository.findByBuildingName(buildingName);
+    public List<ClassroomResponse> getClassroomsByBuilding(String buildingName) {
+        return classroomRepository.findByBuildingName(buildingName)
+                .stream()
+                .map(classroomMapper ::toResponse)
+                .toList();
     }
 
-    public Classroom changeStatus(Long id, RoomStatus newStatus) {
+    public ClassroomResponse changeStatus(Long id, RoomStatus newStatus) {
 
-        Classroom classroom = getClassroomById(id);
+        Classroom classroom = classroomRepository.findById(id).orElseThrow(
+                () -> new ClassroomNotFoundException("Classroom not found with id: " + id)
+        );
 
         classroom.setStatus(newStatus);
 
-        return classroomRepository.save(classroom);
+
+        return classroomMapper.toResponse(classroomRepository.save(classroom));
     }
 }
 

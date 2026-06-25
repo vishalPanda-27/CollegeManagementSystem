@@ -1,18 +1,16 @@
 package com.vishal.cms.teacher;
 
-import com.vishal.cms.student.Student;
 import com.vishal.cms.teacher.dto.TeacherRequest;
 import com.vishal.cms.teacher.dto.TeacherResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1/teacher")
+@RequestMapping("/api/v1/teachers")
 public class TeacherController {
 
     private final TeacherService teacherService;
@@ -25,6 +23,50 @@ public class TeacherController {
     @GetMapping("/{id}")
     public TeacherResponse getTeacher(@PathVariable Long id) {
         return teacherService.findByTeacherId(id);
+    }
+
+    @GetMapping("/department/{departmentId}")
+    public List<TeacherResponse> getTeachersByDepartment(@PathVariable Long departmentId) {
+        return teacherService.findByDepartmentId(departmentId);
+    }
+
+    @GetMapping("/active")
+    public List<TeacherResponse> getActiveTeachers() {
+        return teacherService.findByActive(true);
+    }
+    @GetMapping("/inactive")
+    public List<TeacherResponse> getInactiveTeachers() {
+        return teacherService.findByActive(false);
+    }
+
+    @GetMapping("/strength")
+    public Long getStrengthTeachers() {
+        return teacherService.countAll();
+    }
+
+    @GetMapping("/department/{departmentId}/strength")
+    public Long getStrengthTeachersByDepartment(@PathVariable Long departmentId) {
+        return teacherService.countByDepartmentId(departmentId);
+    }
+
+    @GetMapping("/active/strength")
+    public Long getActiveStrengthTeachers() {
+        return teacherService.countByActive(true);
+    }
+
+    @GetMapping("/inactive/strength")
+    public Long getInactiveStrengthTeachers() {
+        return teacherService.countByActive(false);
+    }
+
+    @PatchMapping("/{id}/activate")
+    public TeacherResponse activateTeacher(@PathVariable Long id) {
+        return teacherService.setTeacherStatus(id,true);
+    }
+
+    @PatchMapping("/{id}/deactivate")
+    public TeacherResponse deactivateTeacher(@PathVariable Long id) {
+        return teacherService.setTeacherStatus(id,false);
     }
 
     @PutMapping("/{id}")

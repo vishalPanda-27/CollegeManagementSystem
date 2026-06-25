@@ -1,5 +1,6 @@
 package com.vishal.cms.result.dto;
 
+import com.vishal.cms.result.ResultStatus;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,5 +28,5 @@ public class ResultResponse {
 
     private String grade;
 
-    private String status;
+    private ResultStatus status;
 }

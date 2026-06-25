@@ -53,5 +53,6 @@ public class Result extends BaseEntity {
 
     private String grade;
 
-    private String status; // PASS / FAIL
+    @Enumerated(EnumType.STRING)
+    private ResultStatus status; // PASS / FAIL
 }

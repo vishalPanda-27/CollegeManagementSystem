@@ -3,13 +3,14 @@ package com.vishal.cms.student;
 import com.vishal.cms.department.Department;
 import com.vishal.cms.student.dto.StudentRequest;
 import com.vishal.cms.student.dto.StudentResponse;
+import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+
+@Component
 public class StudentMapper {
 
-    private StudentMapper() {
-    }
-
-    public static Student toEntity(
+    public Student toEntity(
             StudentRequest request,
             Department department
     ) {
@@ -21,17 +22,31 @@ public class StudentMapper {
         student.setLastName(request.lastName());
         student.setEmail(request.email());
         student.setPhoneNumber(request.phoneNumber());
-        student.setDateOfBirth(request.dateOfBirth());
+        LocalDate dob = request.dateOfBirth();
+        if (dob != null && dob.isAfter(LocalDate.now())) {
+            throw new IllegalStateException(
+                    "Invalid date of birth"
+            );
+        }
+        student.setDateOfBirth(dob);
         student.setGender(request.gender());
         student.setAddress(request.address());
-        student.setAdmissionDate(request.admissionDate());
-        student.setStatus(request.status());
+        student.setAdmissionDate(
+                request.admissionDate() == null
+                        ? LocalDate.now()
+                        : request.admissionDate()
+        );
+        student.setStatus(
+                request.status() == null
+                        ? StudentStatus.ACTIVE
+                        : request.status()
+        );
         student.setDepartment(department);
 
         return student;
     }
 
-    public static StudentResponse toResponse(
+    public StudentResponse toResponse(
             Student student
     ) {
 

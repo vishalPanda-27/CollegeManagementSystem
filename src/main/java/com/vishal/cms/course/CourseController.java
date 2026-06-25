@@ -27,6 +27,24 @@ public class CourseController {
         return courseService.getCourseById(id);
     }
 
+    @GetMapping("/semester/{semester}")
+    public List<CourseResponse> getCoursesBySemester(
+            @PathVariable Integer semester
+    ) {
+        return courseService.getCoursesBySemester(
+                semester
+        );
+    }
+
+    @GetMapping("/department/{departmentId}")
+    public List<CourseResponse> getCoursesByDepartment(
+            @PathVariable Long departmentId
+    ) {
+        return courseService.getCoursesByDepartment(
+                departmentId
+        );
+    }
+
     @PostMapping
     public CourseResponse createCourse(
             @Valid @RequestBody CourseRequest request

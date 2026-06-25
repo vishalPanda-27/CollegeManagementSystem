@@ -5,6 +5,7 @@ import com.vishal.cms.student.Student;
 import com.vishal.cms.subject.Subject;
 import com.vishal.cms.teacher.Teacher;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.PastOrPresent;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -56,6 +57,7 @@ public class Attendance extends BaseEntity {
             name = "attendance_date",
             nullable = false
     )
+    @PastOrPresent
     private LocalDate attendanceDate;
 
     @Enumerated(EnumType.STRING)

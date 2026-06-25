@@ -1,5 +1,6 @@
 package com.vishal.cms.result;
 
+import com.vishal.cms.exceptions.ResultNotFoundException;
 import com.vishal.cms.exceptions.StudentNotFoundException;
 import com.vishal.cms.exceptions.SubjectNotFoundException;
 import com.vishal.cms.result.dto.ResultRequest;
@@ -9,30 +10,20 @@ import com.vishal.cms.student.StudentRepository;
 import com.vishal.cms.subject.Subject;
 import com.vishal.cms.subject.SubjectRepository;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class ResultService {
 
     private final ResultRepository resultRepository;
     private final StudentRepository studentRepository;
     private final SubjectRepository subjectRepository;
     private final ResultMapper resultMapper;
-
-    public ResultService(
-            ResultRepository resultRepository,
-            StudentRepository studentRepository,
-            SubjectRepository subjectRepository,
-            ResultMapper resultMapper
-    ) {
-        this.resultRepository = resultRepository;
-        this.studentRepository = studentRepository;
-        this.subjectRepository = subjectRepository;
-        this.resultMapper = resultMapper;
-    }
 
     public ResultResponse createResult(ResultRequest request) {
 
@@ -50,37 +41,34 @@ public class ResultService {
                                 "Subject not found with id: "
                                         + request.getSubjectId()));
 
+        if (resultRepository.existsByStudentAndSubject(
+                student,
+                subject
+        )) {
+            throw new IllegalStateException(
+                    "Result already exists for this student and subject"
+            );
+        }
+
+        if (
+                request.getMarksObtained() >
+                        request.getMaximumMarks()
+        ) {
+            throw new IllegalStateException(
+                    "Marks obtained cannot exceed maximum marks"
+            );
+        }
         double percentage =
                 (request.getMarksObtained()
                         / request.getMaximumMarks()) * 100;
 
-        String grade;
-        if (percentage >= 90) {
-            grade = "A+";
-        } else if (percentage >= 80) {
-            grade = "A";
-        } else if (percentage >= 70) {
-            grade = "B";
-        } else if (percentage >= 60) {
-            grade = "C";
-        } else if (percentage >= 40) {
-            grade = "D";
-        } else {
-            grade = "F";
-        }
+        String grade=calculateGrade(percentage);
 
-        String status =
-                percentage >= 40 ? "PASS" : "FAIL";
 
-        Result result = Result.builder()
-                .student(student)
-                .subject(subject)
-                .marksObtained(request.getMarksObtained())
-                .maximumMarks(request.getMaximumMarks())
-                .percentage(percentage)
-                .grade(grade)
-                .status(status)
-                .build();
+        ResultStatus status =
+                percentage >= 40 ? ResultStatus.PASS : ResultStatus.FAIL;
+
+        Result result = resultMapper.toEntity(request,student,subject,percentage,grade,status);
 
         return resultMapper.toResponse(
                 resultRepository.save(result)
@@ -99,7 +87,7 @@ public class ResultService {
 
         Result result = resultRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException(
+                        new ResultNotFoundException(
                                 "Result not found with id: " + id));
 
         return resultMapper.toResponse(result);
@@ -125,7 +113,7 @@ public class ResultService {
 
         Result result = resultRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException(
+                        new ResultNotFoundException(
                                 "Result not found with id: " + id));
 
         resultRepository.delete(result);
@@ -138,7 +126,7 @@ public class ResultService {
 
         Result result = resultRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException(
+                        new ResultNotFoundException(
                                 "Result not found with id: " + id));
 
         Student student = studentRepository.findById(
@@ -155,27 +143,38 @@ public class ResultService {
                                 "Subject not found with id: "
                                         + request.getSubjectId()));
 
+        Result existing =
+                resultRepository.findByStudentAndSubject(
+                        student,
+                        subject
+                ).orElse(null);
+
+        if (
+                existing != null &&
+                        !existing.getResultId().equals(id)
+        ) {
+            throw new IllegalStateException(
+                    "Result already exists for this student and subject"
+            );
+        }
+
+        if (
+                request.getMarksObtained() >
+                        request.getMaximumMarks()
+        ) {
+            throw new IllegalStateException(
+                    "Marks obtained cannot exceed maximum marks"
+            );
+        }
+
         double percentage =
                 (request.getMarksObtained()
                         / request.getMaximumMarks()) * 100;
 
-        String grade;
-        if (percentage >= 90) {
-            grade = "A+";
-        } else if (percentage >= 80) {
-            grade = "A";
-        } else if (percentage >= 70) {
-            grade = "B";
-        } else if (percentage >= 60) {
-            grade = "C";
-        } else if (percentage >= 40) {
-            grade = "D";
-        } else {
-            grade = "F";
-        }
+        ResultStatus status =
+                percentage >= 40 ? ResultStatus.PASS : ResultStatus.FAIL;
 
-        String status =
-                percentage >= 40 ? "PASS" : "FAIL";
+        String grade = calculateGrade(percentage);
 
         result.setStudent(student);
         result.setSubject(subject);
@@ -204,6 +203,24 @@ public class ResultService {
                 .stream()
                 .map(resultMapper::toResponse)
                 .toList();
+    }
+
+    private String calculateGrade(double percentage) {
+        String grade;
+        if (percentage >= 90) {
+            grade = "A+";
+        } else if (percentage >= 80) {
+            grade = "A";
+        } else if (percentage >= 70) {
+            grade = "B";
+        } else if (percentage >= 60) {
+            grade = "C";
+        } else if (percentage >= 40) {
+            grade = "D";
+        } else {
+            grade = "F";
+        }
+        return grade;
     }
 
     public Double calculateOverallPercentage(
@@ -248,32 +265,37 @@ public class ResultService {
                 resultRepository.findByStudent(student);
 
         if (results.isEmpty()) {
-            return 0.0;
+            throw new IllegalStateException(
+                    "No results available for student"
+            );
         }
 
-        double totalGradePoints = 0;
+        double totalGradePoints = calculateGradePoints(results);
 
+        return totalGradePoints / results.size();
+    }
+
+    private double calculateGradePoints(List<Result> results) {
+        double gradePoints = 0;
         for (Result result : results) {
-
             double percentage = result.getPercentage();
 
             if (percentage >= 90) {
-                totalGradePoints += 10;
+                gradePoints += 10;
             } else if (percentage >= 80) {
-                totalGradePoints += 9;
+                gradePoints += 9;
             } else if (percentage >= 70) {
-                totalGradePoints += 8;
+                gradePoints += 8;
             } else if (percentage >= 60) {
-                totalGradePoints += 7;
+                gradePoints += 7;
             } else if (percentage >= 50) {
-                totalGradePoints += 6;
+                gradePoints += 6;
             } else if (percentage >= 40) {
-                totalGradePoints += 5;
+                gradePoints += 5;
             } else {
-                totalGradePoints += 0;
+                gradePoints += 0;
             }
         }
-
-        return totalGradePoints / results.size();
+        return gradePoints;
     }
 }

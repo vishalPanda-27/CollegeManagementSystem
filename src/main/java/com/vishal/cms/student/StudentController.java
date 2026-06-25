@@ -20,11 +20,39 @@ public class StudentController {
         return studentService.getAllStudents();
     }
 
+    @GetMapping("/strength")
+    public Long getStrengthStudents() {
+        return studentService.countStudents();
+    }
+
+    @GetMapping("/department/{departmentId}/strength")
+    public Long getDepartmentStrength(@PathVariable Long departmentId) {
+        return studentService.countStudentsByDepartment(departmentId);
+    }
+    @GetMapping("/status/{status}/strength")
+    public Long getStatusStrength(@PathVariable StudentStatus status) {
+        return studentService.countStudentsByStatus(status);
+    }
+
     @GetMapping("/{id}")
     public StudentResponse getStudentById(
             @PathVariable Long id
     ) {
         return studentService.getStudentById(id);
+    }
+
+    @GetMapping("/department/{departmentId}")
+    public List<StudentResponse> getStudentsByDepartment(
+            @PathVariable Long departmentId
+    ){
+        return studentService.getStudentsByDepartment(departmentId);
+    }
+
+    @GetMapping("/status/{status}")
+    public List<StudentResponse> getStudentsByStatus(
+            @PathVariable StudentStatus status
+    ){
+        return studentService.getStudentsByStatus(status);
     }
 
     @PostMapping
@@ -43,6 +71,25 @@ public class StudentController {
                 id,
                 request
         );
+    }
+    @PatchMapping("/{id}/graduate")
+    public StudentResponse updateStudentGraduate(@PathVariable Long id){
+        return studentService.updateStudentGraduate(id);
+    }
+
+    @PatchMapping("/{id}/suspend")
+    public StudentResponse updateStudentSuspend(@PathVariable Long id){
+        return studentService.updateStudentSuspend(id);
+    }
+
+    @PatchMapping("/{id}/activate")
+    public StudentResponse updateStudentActivate(@PathVariable Long id){
+        return  studentService.updateStudentActivate(id);
+    }
+
+    @PatchMapping("/{id}/deactivate")
+    public StudentResponse updateStudentDeactivate(@PathVariable Long id){
+        return studentService.updateStudentDeactivate(id);
     }
 
     @DeleteMapping("/{id}")

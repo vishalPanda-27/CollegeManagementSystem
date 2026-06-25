@@ -84,11 +84,10 @@ public class SubjectMapper {
         subject.setTheoryHours(request.getTheoryHours());
         subject.setPracticalHours(request.getPracticalHours());
         subject.setSemester(request.getSemester());
-
         subject.setActive(
                 request.getActive() != null
                         ? request.getActive()
-                        : true
+                        : subject.getActive()
         );
 
         subject.setDepartment(department);

@@ -51,10 +51,14 @@ public class Teacher extends BaseEntity {
 
     private Double salary;
 
-    private boolean active;
+    private boolean active=true;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "department_id")
+    @JoinColumn(name = "department_id",
+    nullable = false,
+    foreignKey = @ForeignKey(
+            name="fk_teacher_department"
+    ))
     private Department department;
 
     @ManyToMany(mappedBy = "teachers")

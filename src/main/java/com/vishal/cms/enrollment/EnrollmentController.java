@@ -60,6 +60,18 @@ public class EnrollmentController {
                 courseId
         );
     }
+    @GetMapping("/status/{status}")
+    public List<EnrollmentResponse> getEnrollmentsByStatus(@PathVariable EnrollmentStatus status) {
+        return enrollmentService.getEnrollmentsByStatus(status);
+    }
+    @GetMapping("/student/{studentId}/active")
+    public List<EnrollmentResponse> getActiveEnrollmentsByStudentId(@PathVariable Long studentId) {
+        return enrollmentService.getActiveEnrollmentsByStudent(studentId);
+    }
+    @GetMapping("/student/{studentId}/completed")
+    public List<EnrollmentResponse> getCompletedEnrollmentsByStudentId(@PathVariable Long studentId) {
+        return enrollmentService.getCompletedEnrollmentsByStudent(studentId);
+    }
 
     @PutMapping("/{enrollmentId}")
     public EnrollmentResponse updateEnrollment(
@@ -74,12 +86,16 @@ public class EnrollmentController {
     }
 
     @DeleteMapping("/{enrollmentId}")
-    public void deleteEnrollment(
-            @PathVariable Long enrollmentId
-    ) {
+    public void deleteEnrollment(@PathVariable Long enrollmentId) {
+        enrollmentService.deleteEnrollment(enrollmentId);
+    }
 
-        enrollmentService.deleteEnrollment(
-                enrollmentId
-        );
+    @PatchMapping("/{id}/drop")
+    public EnrollmentResponse dropEnrollment(@PathVariable Long id) {
+        return enrollmentService.dropEnrollment(id);
+    }
+    @PatchMapping("/{id}/complete")
+    public EnrollmentResponse completeEnrollment(@PathVariable Long id) {
+        return enrollmentService.completeEnrollment(id);
     }
 }

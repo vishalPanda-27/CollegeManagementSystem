@@ -64,6 +64,8 @@ public class DepartmentMapper {
                                 ? department.getClassrooms().size()
                                 : 0
                 )
+                .createdAt(department.getCreatedAt())
+                .updatedAt(department.getUpdatedAt())
                 .build();
     }
 }

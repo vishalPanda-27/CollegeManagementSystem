@@ -1,5 +1,8 @@
 package com.vishal.cms.program;
 
+import com.vishal.cms.program.dto.ProgramRequest;
+import com.vishal.cms.program.dto.ProgramResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,38 +15,36 @@ public class ProgramController {
 
     private final ProgramService programService;
 
-    @PostMapping("/department/{departmentId}")
-    public Program createProgram(
-            @RequestBody Program program,
-            @PathVariable Long departmentId
+    @PostMapping
+    public ProgramResponse createProgram(
+            @Valid @RequestBody ProgramRequest dto
     ) {
-        return programService.createProgram(
-                program,
-                departmentId
-        );
+        return programService.createProgram(dto);
     }
 
     @GetMapping
-    public List<Program> getAllPrograms() {
+    public List<ProgramResponse> getAllPrograms() {
         return programService.getAllPrograms();
     }
 
     @GetMapping("/{id}")
-    public Program getProgramById(
+    public ProgramResponse getProgramById(
             @PathVariable Long id
     ) {
         return programService.getProgramById(id);
     }
 
+    @GetMapping("/department/{departmentId}")
+    public List<ProgramResponse> getProgramsByDepartmentId(@PathVariable Long departmentId) {
+        return programService.getProgramsByDepartment(departmentId);
+    }
+
     @PutMapping("/{id}")
-    public Program updateProgram(
+    public ProgramResponse updateProgram(
             @PathVariable Long id,
-            @RequestBody Program program
+            @Valid @RequestBody ProgramRequest dto
     ) {
-        return programService.updateProgram(
-                id,
-                program
-        );
+        return programService.updateProgram(id, dto);
     }
 
     @DeleteMapping("/{id}")

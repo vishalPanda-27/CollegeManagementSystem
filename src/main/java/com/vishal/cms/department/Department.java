@@ -8,6 +8,8 @@ import com.vishal.cms.student.Student;
 import com.vishal.cms.teacher.Teacher;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,14 +30,17 @@ public class Department extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank
     @Column(nullable = false, unique = true)
     private String code;
 
+    @NotBlank
     @Column(nullable = false)
     private String name;
 
     private String description;
 
+    @Email
     private String email;
 
     private String phoneNumber;
@@ -58,9 +63,10 @@ public class Department extends BaseEntity {
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
-    private List<Program> programs;
+    private List<Program> programs = new ArrayList<>();
 
     @OneToOne
-    @JoinColumn(name = "hod_id")
+    @JoinColumn(name = "hod_id",
+    unique = true)
     private Teacher hod;
 }

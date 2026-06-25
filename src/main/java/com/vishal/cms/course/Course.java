@@ -8,6 +8,8 @@ import jakarta.persistence.Entity;
 import com.vishal.cms.department.Department;
 import com.vishal.cms.teacher.Teacher;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -44,8 +46,11 @@ public class Course extends BaseEntity {
     @NotBlank
     private String courseName;
 
+    @Min(2)
     private Integer credits;
 
+    @Min(1)
+    @Max(8)
     private Integer semester;
 
     private String description;

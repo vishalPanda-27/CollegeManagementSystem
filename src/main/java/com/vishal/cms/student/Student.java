@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -66,7 +67,7 @@ public class Student extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private StudentStatus status;
 
-    @ManyToOne
+    @ManyToOne(fetch =  FetchType.LAZY)
     @JoinColumn(
             name = "department_id",
             foreignKey = @ForeignKey(
@@ -76,18 +77,17 @@ public class Student extends BaseEntity {
     private Department department;
 
     @OneToMany(
-            mappedBy = "student",
-            cascade = CascadeType.ALL
+            mappedBy = "student"
     )
-    private List<Enrollment> enrollments;
+    private List<Enrollment> enrollments = new ArrayList<>();
 
     @OneToMany(mappedBy = "student")
-    private List<Attendance> attendanceRecords;
+    private List<Attendance> attendanceRecords = new ArrayList<>();
 
     @OneToMany(mappedBy = "student")
-    private List<Result> results;
+    private List<Result> results = new ArrayList<>();
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 }

@@ -4,6 +4,8 @@ import com.vishal.cms.audit.BaseEntity;
 import com.vishal.cms.course.Course;
 import com.vishal.cms.student.Student;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -55,5 +57,7 @@ public class Enrollment extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private EnrollmentStatus status;
 
+    @DecimalMin("0.0")
+    @DecimalMax("10.0")
     private Double grade;
 }

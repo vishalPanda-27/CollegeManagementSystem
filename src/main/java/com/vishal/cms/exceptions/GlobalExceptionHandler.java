@@ -19,6 +19,7 @@ public class GlobalExceptionHandler {
             DepartmentNotFoundException.class,
             EnrollmentNotFoundException.class,
             ProgramNotFoundException.class,
+            ResultNotFoundException.class,
             StudentNotFoundException.class,
             SubjectNotFoundException.class,
             TeacherNotFoundException.class,
@@ -58,9 +59,9 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<String>  handleGeneralException(Exception ex){
+    public ResponseEntity<String> handleGeneralException(Exception ex) {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Something went wrong");
+                .body("An unexpected error occurred. Please try again later.");
     }
 }

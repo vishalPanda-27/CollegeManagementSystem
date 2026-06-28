@@ -49,3 +49,6 @@ Thumbs.db
 
 ### Application Secrets ###
 application-local.properties
+
+###Frontend###
+frontend/

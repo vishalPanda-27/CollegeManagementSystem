@@ -1,0 +1,11 @@
+package com.vishal.cms.department;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+
+public interface DepartmentRepository extends JpaRepository<Department, Long> {
+    Optional<Department> findByCode(String code);
+    boolean existsByEmail(String email);
+    boolean existsByCode(String code);
+}

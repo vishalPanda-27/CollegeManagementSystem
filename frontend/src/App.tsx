@@ -17,6 +17,7 @@ import TeachersPage from "@/pages/TeachersPage";
 import CoursesPage from "@/pages/CoursesPage";
 import DepartmentsPage from "@/pages/DepartmentsPage";
 import DepartmentDetailsPage from "@/pages/DepartmentDetailsPage";
+import ProgramsPage from "@/features/program/pages/ProgramsPage";
 import SettingsPage from "@/pages/SettingsPage";
 import NotFoundPage from "@/pages/NotFoundPage";
 
@@ -54,6 +55,7 @@ function AppRoutes() {
           <Route path="/teachers" element={<TeachersPage />} />
           <Route path="/courses" element={<CoursesPage />} />
           <Route path="/departments" element={<DepartmentsPage />} />
+          <Route path="/programs" element={<ProgramsPage />} />
           <Route
             path="/departments/:id"
             element={<DepartmentDetailsPage />}

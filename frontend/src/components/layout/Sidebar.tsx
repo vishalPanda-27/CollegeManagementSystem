@@ -7,6 +7,7 @@ import {
   Building2,
   Settings,
   Layers,
+  Library,
   GraduationCap as Logo,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -19,6 +20,7 @@ const nav = [
   { to: "/courses", label: "Courses", icon: BookOpen },
   { to: "/departments", label: "Departments", icon: Building2 },
   { to: "/programs", label: "Programs", icon: Layers },
+  { to: "/subjects", label: "Subjects", icon: Library },
   { to: "/settings", label: "Settings", icon: Settings },
 ];
 

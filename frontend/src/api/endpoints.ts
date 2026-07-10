@@ -6,7 +6,7 @@ import type {
   Department,
   LoginPayload,
   LoginResponse,
-  User,
+  User
 } from "@/types";
 
 export const authApi = {

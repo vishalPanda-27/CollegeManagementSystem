@@ -86,7 +86,28 @@ export interface Department {
   id: number;
   code: string;
   name: string;
-  hodName?: string;
+  description?: string;
+  email?: string;
+  phoneNumber?: string;
+  hodId?: number | null;
+  hodName?: string | null;
   totalStudents?: number;
   totalTeachers?: number;
+  totalCourses?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface DepartmentRequest {
+  code: string;
+  name: string;
+  description?: string;
+  email?: string;
+  phoneNumber: string;
+}
+
+export interface TeacherOption {
+  id: number;
+  firstName: string;
+  lastName: string;
 }

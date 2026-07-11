@@ -13,12 +13,12 @@ import RegisterPage from "@/pages/RegisterPage";
 import DashboardPage from "@/pages/DashboardPage";
 import UsersPage from "@/pages/UsersPage";
 import StudentsPage from "@/pages/StudentsPage";
-import TeachersPage from "@/pages/TeachersPage";
 import DepartmentsPage from "@/pages/DepartmentsPage";
 import DepartmentDetailsPage from "@/pages/DepartmentDetailsPage";
 import ProgramsPage from "@/features/program/pages/ProgramsPage";
 import CoursesPage from "@/features/course/pages/CoursesPage";
-import SubjectsPage from "./features/subject/pages/SubjectsPage";
+import SubjectsPage from "@/features/subject/pages/SubjectsPage";
+import TeachersPage from "@/features/teacher/pages/TeachersPage";
 import SettingsPage from "@/pages/SettingsPage";
 import NotFoundPage from "@/pages/NotFoundPage";
 

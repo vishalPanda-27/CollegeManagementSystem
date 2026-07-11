@@ -19,6 +19,7 @@ import ProgramsPage from "@/features/program/pages/ProgramsPage";
 import CoursesPage from "@/features/course/pages/CoursesPage";
 import SubjectsPage from "@/features/subject/pages/SubjectsPage";
 import TeachersPage from "@/features/teacher/pages/TeachersPage";
+import ClassroomsPage from "@/features/classroom/pages/ClassroomsPage";
 import SettingsPage from "@/pages/SettingsPage";
 import NotFoundPage from "@/pages/NotFoundPage";
 
@@ -58,6 +59,7 @@ function AppRoutes() {
           <Route path="/departments" element={<DepartmentsPage />} />
           <Route path="/subjects" element={<SubjectsPage />} />
           <Route path="/programs" element={<ProgramsPage />} />
+          <Route path="/classrooms" element={<ClassroomsPage />} />
           <Route
             path="/departments/:id"
             element={<DepartmentDetailsPage />}

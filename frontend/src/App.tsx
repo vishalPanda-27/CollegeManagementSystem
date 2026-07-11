@@ -20,6 +20,9 @@ import CoursesPage from "@/features/course/pages/CoursesPage";
 import SubjectsPage from "@/features/subject/pages/SubjectsPage";
 import TeachersPage from "@/features/teacher/pages/TeachersPage";
 import ClassroomsPage from "@/features/classroom/pages/ClassroomsPage";
+import EnrollmentsPage from "@/features/enrollment/pages/EnrollmentsPage";
+import StudentEnrollmentsPage from "@/features/enrollment/pages/StudentEnrollmentsPage";
+import CourseEnrollmentsPage from "@/features/enrollment/pages/CourseEnrollmentsPage";
 import SettingsPage from "@/pages/SettingsPage";
 import NotFoundPage from "@/pages/NotFoundPage";
 
@@ -63,6 +66,15 @@ function AppRoutes() {
           <Route
             path="/departments/:id"
             element={<DepartmentDetailsPage />}
+          />
+          <Route path="/enrollments" element={<EnrollmentsPage />} />
+          <Route
+            path="/enrollments/students"
+            element={<StudentEnrollmentsPage />}
+          />
+          <Route
+            path="/enrollments/courses"
+            element={<CourseEnrollmentsPage />}
           />
           <Route path="/settings" element={<SettingsPage />} />
         </Route>

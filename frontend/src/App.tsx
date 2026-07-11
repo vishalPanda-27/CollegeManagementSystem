@@ -12,7 +12,7 @@ import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
 import DashboardPage from "@/pages/DashboardPage";
 import UsersPage from "@/pages/UsersPage";
-import StudentsPage from "@/pages/StudentsPage";
+import StudentsPage from "@/features/student/pages/StudentsPage";
 import DepartmentsPage from "@/pages/DepartmentsPage";
 import DepartmentDetailsPage from "@/pages/DepartmentDetailsPage";
 import ProgramsPage from "@/features/program/pages/ProgramsPage";

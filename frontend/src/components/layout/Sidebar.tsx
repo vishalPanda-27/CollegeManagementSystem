@@ -9,6 +9,7 @@ import {
   Layers,
   Library,
   DoorOpen,
+  CalendarClock,
   ClipboardList,
   GraduationCap as Logo,
 } from "lucide-react";
@@ -25,6 +26,7 @@ const nav = [
   { to: "/subjects", label: "Subjects", icon: Library },
   { to: "/classrooms", label: "Classrooms", icon: DoorOpen },
   { to: "/enrollments", label: "Enrollments", icon: ClipboardList },
+  { to: "/timetable", label: "Timetable", icon: CalendarClock },
   { to: "/settings", label: "Settings", icon: Settings },
 ];
 

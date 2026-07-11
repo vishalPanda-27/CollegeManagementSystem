@@ -23,6 +23,7 @@ import ClassroomsPage from "@/features/classroom/pages/ClassroomsPage";
 import EnrollmentsPage from "@/features/enrollment/pages/EnrollmentsPage";
 import StudentEnrollmentsPage from "@/features/enrollment/pages/StudentEnrollmentsPage";
 import CourseEnrollmentsPage from "@/features/enrollment/pages/CourseEnrollmentsPage";
+import TimetablesPage from "@/features/timetable/pages/TimetablesPage";
 import SettingsPage from "@/pages/SettingsPage";
 import NotFoundPage from "@/pages/NotFoundPage";
 
@@ -76,6 +77,7 @@ function AppRoutes() {
             path="/enrollments/courses"
             element={<CourseEnrollmentsPage />}
           />
+          <Route path="/timetable" element={<TimetablesPage />} />
           <Route path="/settings" element={<SettingsPage />} />
         </Route>
 

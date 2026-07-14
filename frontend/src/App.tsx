@@ -24,6 +24,11 @@ import EnrollmentsPage from "@/features/enrollment/pages/EnrollmentsPage";
 import StudentEnrollmentsPage from "@/features/enrollment/pages/StudentEnrollmentsPage";
 import CourseEnrollmentsPage from "@/features/enrollment/pages/CourseEnrollmentsPage";
 import TimetablesPage from "@/features/timetable/pages/TimetablesPage";
+import ClassSchedulesPage from "@/features/classSchedule/pages/ClassSchedulesPage";
+import TeacherSchedulePage from "@/features/classSchedule/pages/TeacherSchedulePage";
+import ClassroomSchedulePage from "@/features/classSchedule/pages/ClassroomSchedulePage";
+import DailySchedulePage from "@/features/classSchedule/pages/DailySchedulePage";
+import StudentSchedulePage from "@/features/classSchedule/pages/StudentSchedulePage";
 import SettingsPage from "@/pages/SettingsPage";
 import NotFoundPage from "@/pages/NotFoundPage";
 
@@ -78,6 +83,11 @@ function AppRoutes() {
             element={<CourseEnrollmentsPage />}
           />
           <Route path="/timetable" element={<TimetablesPage />} />
+          <Route path="/schedules" element={<ClassSchedulesPage />} />
+          <Route path="/schedules/teacher" element={<TeacherSchedulePage />} />
+          <Route path="/schedules/classroom" element={<ClassroomSchedulePage />} />
+          <Route path="/schedules/day" element={<DailySchedulePage />} />
+          <Route path="/schedules/student" element={<StudentSchedulePage />} />
           <Route path="/settings" element={<SettingsPage />} />
         </Route>
 

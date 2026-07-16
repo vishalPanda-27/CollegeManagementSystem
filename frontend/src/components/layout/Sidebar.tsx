@@ -12,6 +12,7 @@ import {
   CalendarClock,
   ClipboardList,
   CalendarDays,
+  ClipboardCheck,
   GraduationCap as Logo,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -29,6 +30,8 @@ const nav = [
   { to: "/enrollments", label: "Enrollments", icon: ClipboardList },
   { to: "/timetable", label: "Timetable", icon: CalendarClock },
   { to: "/schedules", label: "Class Schedule", icon: CalendarDays },
+  { to: "/attendance", label: "Attendance", icon: ClipboardCheck },
+  { to: "/results", label: "Results", icon: GraduationCap },
   { to: "/settings", label: "Settings", icon: Settings },
 ];
 

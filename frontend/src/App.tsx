@@ -29,6 +29,18 @@ import TeacherSchedulePage from "@/features/classSchedule/pages/TeacherScheduleP
 import ClassroomSchedulePage from "@/features/classSchedule/pages/ClassroomSchedulePage";
 import DailySchedulePage from "@/features/classSchedule/pages/DailySchedulePage";
 import StudentSchedulePage from "@/features/classSchedule/pages/StudentSchedulePage";
+import AttendancePage from "@/features/attendance/pages/AttendancePage";
+import AttendanceCalendarPage from "@/features/attendance/pages/AttendanceCalendarPage";
+import MarkAttendancePage from "@/features/attendance/pages/MarkAttendancePage";
+import BulkAttendancePage from "@/features/attendance/pages/BulkAttendancePage";
+import StudentAttendancePage from "@/features/attendance/pages/StudentAttendancePage";
+import SubjectAttendancePage from "@/features/attendance/pages/SubjectAttendancePage";
+import TeacherAttendancePage from "@/features/attendance/pages/TeacherAttendancePage";
+import AttendanceAnalyticsPage from "@/features/attendance/pages/AttendanceAnalyticsPage";
+import ResultsPage from "@/features/results/pages/ResultsPage";
+import StudentTranscriptPage from "@/features/results/pages/StudentTranscriptPage";
+import SubjectResultsPage from "@/features/results/pages/SubjectResultsPage";
+import ResultsAnalyticsPage from "@/features/results/pages/ResultsAnalyticsPage";
 import SettingsPage from "@/pages/SettingsPage";
 import NotFoundPage from "@/pages/NotFoundPage";
 
@@ -88,6 +100,18 @@ function AppRoutes() {
           <Route path="/schedules/classroom" element={<ClassroomSchedulePage />} />
           <Route path="/schedules/day" element={<DailySchedulePage />} />
           <Route path="/schedules/student" element={<StudentSchedulePage />} />
+          <Route path="/attendance" element={<AttendancePage />} />
+          <Route path="/attendance/mark" element={<MarkAttendancePage />} />
+          <Route path="/attendance/bulk" element={<BulkAttendancePage />} />
+          <Route path="/attendance/calendar" element={<AttendanceCalendarPage />} />
+          <Route path="/attendance/student" element={<StudentAttendancePage />} />
+          <Route path="/attendance/subject" element={<SubjectAttendancePage />} />
+          <Route path="/attendance/teacher" element={<TeacherAttendancePage />} />
+          <Route path="/attendance/analytics" element={<AttendanceAnalyticsPage />} />
+          <Route path="/results" element={<ResultsPage />} />
+          <Route path="/results/transcript" element={<StudentTranscriptPage />} />
+          <Route path="/results/subject" element={<SubjectResultsPage />} />
+          <Route path="/results/analytics" element={<ResultsAnalyticsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
         </Route>
 

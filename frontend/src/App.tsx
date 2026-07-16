@@ -10,7 +10,8 @@ import { Toaster } from "@/components/ui/sonner";
 
 import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
-import DashboardPage from "@/pages/DashboardPage";
+import DashboardRoutes from "@/features/dashboard/DashboardRoutes";
+import Unauthorized from "@/features/dashboard/pages/Unauthorized";
 import UsersPage from "@/pages/UsersPage";
 import StudentsPage from "@/features/student/pages/StudentsPage";
 import DepartmentsPage from "@/pages/DepartmentsPage";
@@ -72,7 +73,8 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         >
-          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/dashboard" element={<DashboardRoutes />} />
+          <Route path="/unauthorized" element={<Unauthorized />} />
           <Route path="/users" element={<UsersPage />} />
           <Route path="/students" element={<StudentsPage />} />
           <Route path="/teachers" element={<TeachersPage />} />

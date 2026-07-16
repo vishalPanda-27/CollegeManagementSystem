@@ -16,26 +16,53 @@ import {
   GraduationCap as Logo,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const nav = [
+import { useAuth } from "@/contexts/AuthContext";
+import type { Role } from "@/types";
+import type { LucideIcon } from "lucide-react";
+interface NavItem {
+  to: string;
+  label: string;
+  icon: LucideIcon;
+  end?: boolean;
+  roles?: Role[];
+}
+const ALL_NAV: NavItem[] = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard, end: true },
-  { to: "/users", label: "Users", icon: Users },
   { to: "/students", label: "Students", icon: GraduationCap },
   { to: "/teachers", label: "Teachers", icon: Users },
   { to: "/courses", label: "Courses", icon: BookOpen },
+  { to: "/subjects", label: "Subjects", icon: Library },
   { to: "/departments", label: "Departments", icon: Building2 },
   { to: "/programs", label: "Programs", icon: Layers },
-  { to: "/subjects", label: "Subjects", icon: Library },
   { to: "/classrooms", label: "Classrooms", icon: DoorOpen },
   { to: "/enrollments", label: "Enrollments", icon: ClipboardList },
   { to: "/timetable", label: "Timetable", icon: CalendarClock },
   { to: "/schedules", label: "Class Schedule", icon: CalendarDays },
   { to: "/attendance", label: "Attendance", icon: ClipboardCheck },
   { to: "/results", label: "Results", icon: GraduationCap },
+  { to: "/users", label: "Users", icon: Users, roles: ["ADMIN"] },
+  { to: "/students", label: "Students", icon: GraduationCap, roles: ["ADMIN", "DEAN"] },
+  { to: "/teachers", label: "Teachers", icon: Users, roles: ["ADMIN", "DEAN"] },
+  { to: "/courses", label: "Courses", icon: BookOpen, roles: ["ADMIN", "DEAN", "TEACHER"] },
+  { to: "/subjects", label: "Subjects", icon: Library, roles: ["ADMIN", "DEAN", "TEACHER"] },
+  { to: "/departments", label: "Departments", icon: Building2, roles: ["ADMIN"] },
+  { to: "/programs", label: "Programs", icon: Layers, roles: ["ADMIN"] },
+  { to: "/classrooms", label: "Classrooms", icon: DoorOpen, roles: ["ADMIN"] },
+  { to: "/enrollments", label: "Enrollments", icon: ClipboardList, roles: ["ADMIN"] },
+  { to: "/enrollments/students", label: "My Courses", icon: BookOpen, roles: ["STUDENT"] },
+  { to: "/timetable", label: "Timetable", icon: CalendarClock, roles: ["ADMIN", "TEACHER", "STUDENT"] },
+  { to: "/schedules", label: "Class Schedule", icon: CalendarDays, roles: ["ADMIN"] },
+  { to: "/attendance", label: "Attendance", icon: ClipboardCheck, roles: ["ADMIN", "DEAN", "TEACHER"] },
+  { to: "/attendance/student", label: "My Attendance", icon: ClipboardCheck, roles: ["STUDENT"] },
+  { to: "/results", label: "Results", icon: GraduationCap, roles: ["ADMIN", "DEAN", "TEACHER"] },
+  { to: "/results/transcript", label: "My Results", icon: GraduationCap, roles: ["STUDENT"] },
   { to: "/settings", label: "Settings", icon: Settings },
 ];
 
 export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { user } = useAuth();
+  const role = user?.role;
+  const nav = ALL_NAV.filter((item) => !item.roles || (role && item.roles.includes(role)));
   return (
     <>
       {open && (
@@ -57,7 +84,9 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
           </div>
           <div className="flex flex-col leading-tight">
             <span className="text-sm font-semibold">Campus OS</span>
-            <span className="text-xs text-muted-foreground">Admin Console</span>
+            <span className="text-xs text-muted-foreground">
+              {role ? role.charAt(0) + role.slice(1).toLowerCase() + " Console" : "Console"}
+            </span>
           </div>
         </div>
 
